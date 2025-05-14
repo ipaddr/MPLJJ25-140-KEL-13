@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:edubuild/screens/login_screen.dart';
-import 'package:edubuild/screens/home_screen.dart'; // pastikan file ini ada
+import 'package:edubuild/screens/home_screen.dart'; 
+import 'package:edubuild/screens/add_school_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
       home: LoginScreen(),
       routes: {
         '/home': (context) => HomeScreen(),
+        '/addSchool': (context) => const AddSchoolScreen(),
       },
     );
   }
