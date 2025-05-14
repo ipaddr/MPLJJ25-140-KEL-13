@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import '../widgets/school_card.dart';
+import 'map_screen.dart';
+import 'monitoring_renovasi_screen.dart';
+import 'umpan_balik_screen.dart';
+import 'feedback_form_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -9,22 +13,38 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Map<String, String>> schools = [
+  List<Map<String, dynamic>> schools = [
     {
       'name': 'SMA Negeri 1 Padang',
       'location': 'Padang, Sumatera Barat',
-      'status': 'Perlu Renovasi',
+      'status': 'Sedang Pemasangan Atap Baru',
+      'riwayat': [
+        'Pengecatan Dinding',
+        'Penggantian Genteng',
+        'Perbaikan Lantai',
+      ],
     },
     {
       'name': 'SMA Negeri 10 Padang',
       'location': 'Padang, Sumatera Barat',
       'status': 'Baik',
+      'riwayat': [
+        'Perbaikan Jendela',
+      ],
     },
   ];
 
-  void _addSchool(Map<String, String> newSchool) {
+  List<Map<String, dynamic>> feedbackList = [];
+
+  void _addSchool(Map<String, dynamic> newSchool) {
     setState(() {
       schools.add(newSchool);
+    });
+  }
+
+  void _addFeedback(Map<String, dynamic> newFeedback) {
+    setState(() {
+      feedbackList.add(newFeedback);
     });
   }
 
@@ -37,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
           'EduBuild',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
-        backgroundColor: const Color(0xFF1E3A8A), // Sesuai tone biru Figma
+        backgroundColor: const Color(0xFF1E3A8A),
         elevation: 0,
       ),
       body: SafeArea(
@@ -55,6 +75,57 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MapScreen()),
+                  );
+                },
+                icon: const Icon(Icons.map),
+                label: const Text("Lihat Peta Sekolah"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1E3A8A),
+                  foregroundColor: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          UmpanBalikScreen(feedbackList: feedbackList),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.feedback),
+                label: const Text("Umpan Balik Pengguna"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange[800],
+                  foregroundColor: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          FeedbackFormScreen(onSubmit: _addFeedback),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.edit),
+                label: const Text("Tulis Umpan Balik"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green[700],
+                  foregroundColor: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 12),
               Expanded(
                 child: schools.isEmpty
                     ? const Center(
@@ -69,11 +140,23 @@ class _HomeScreenState extends State<HomeScreen> {
                         itemBuilder: (context, index) {
                           final school = schools[index];
                           return SchoolCard(
-                            name: school['name']!,
-                            location: school['location']!,
-                            status: school['status']!,
-                            onTap: () =>
-                                Navigator.pushNamed(context, '/dashboard'),
+                            name: school['name'],
+                            location: school['location'],
+                            status: school['status'],
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      MonitoringRenovasiScreen(
+                                    namaSekolah: school['name'],
+                                    statusProyek: school['status'],
+                                    riwayatPerbaikan:
+                                        List<String>.from(school['riwayat']),
+                                  ),
+                                ),
+                              );
+                            },
                           );
                         },
                       ),
@@ -84,8 +167,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final result = await Navigator.pushNamed(context, '/addSchool');
-          if (result != null && result is Map<String, String>) {
+          final result =
+              await Navigator.pushNamed(context, '/addSchool'); // opsional
+          if (result != null && result is Map<String, dynamic>) {
             _addSchool(result);
           }
         },
