@@ -43,7 +43,7 @@ class _MapScreenState extends State<MapScreen> {
     _statusIcons["Baik"] = await BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen);
     _statusIcons["Sedang Renovasi"] = await BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange);
     _statusIcons["Rusak"] = await BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
-    setState(() {});
+    setState(() {}); // agar marker muncul setelah icon selesai load
   }
 
   @override
@@ -51,42 +51,58 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Visualisasi Kondisi Sekolah"),
+        backgroundColor: Colors.blue[900],
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(
-            child: GoogleMap(
-              onMapCreated: (controller) => mapController = controller,
-              initialCameraPosition: CameraPosition(
-                target: _center,
-                zoom: 5.5,
+          GoogleMap(
+            onMapCreated: (controller) => mapController = controller,
+            initialCameraPosition: CameraPosition(
+              target: _center,
+              zoom: 5.5,
+            ),
+            markers: _statusIcons.isEmpty
+                ? {} // Jangan tampilkan marker sebelum ikon siap
+                : _schools.map((school) {
+                    final status = school["status"];
+                    return Marker(
+                      markerId: MarkerId(school["name"]),
+                      position: school["location"],
+                      infoWindow: InfoWindow(
+                        title: school["name"],
+                        snippet: status,
+                      ),
+                      icon: _statusIcons[status] ?? BitmapDescriptor.defaultMarker,
+                    );
+                  }).toSet(),
+          ),
+          Positioned(
+            bottom: 16,
+            left: 16,
+            right: 16,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 6,
+                    offset: Offset(0, 2),
+                  ),
+                ],
               ),
-              markers: _schools.map((school) {
-                final status = school["status"];
-                return Marker(
-                  markerId: MarkerId(school["name"]),
-                  position: school["location"],
-                  infoWindow: InfoWindow(title: school["name"], snippet: status),
-                  icon: _statusIcons[status] ?? BitmapDescriptor.defaultMarker,
-                );
-              }).toSet(),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _LegendItem(color: Colors.green, label: "Baik"),
+                  _LegendItem(color: Colors.orange, label: "Sedang Renovasi"),
+                  _LegendItem(color: Colors.red, label: "Rusak"),
+                ],
+              ),
             ),
           ),
-          _buildLegend(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLegend() {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: const [
-          _LegendItem(color: Colors.green, label: "Baik"),
-          _LegendItem(color: Colors.orange, label: "Sedang Renovasi"),
-          _LegendItem(color: Colors.red, label: "Rusak"),
         ],
       ),
     );
@@ -104,8 +120,8 @@ class _LegendItem extends StatelessWidget {
     return Row(
       children: [
         Icon(Icons.circle, color: color, size: 14),
-        const SizedBox(width: 4),
-        Text(label),
+        const SizedBox(width: 6),
+        Text(label, style: TextStyle(fontSize: 13)),
       ],
     );
   }

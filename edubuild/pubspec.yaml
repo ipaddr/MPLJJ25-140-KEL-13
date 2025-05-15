@@ -15,16 +15,23 @@ dependencies:
   flutter_map: ^6.1.0
   latlong2: ^0.9.0
   google_maps_flutter: ^2.5.0
-  image_picker: ^1.0.7  # ✅ Tambahan untuk ambil gambar dari galeri/kamera
+  image_picker: ^1.0.7
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_native_splash: ^2.4.0
 
 flutter:
   uses-material-design: true
 
-  # Untuk menambahkan asset (jika perlu), kamu bisa buka comment ini dan tambahkan file kamu
-  # assets:
-  #   - assets/images/
+  assets:
+    - assets/images/splash_logo.png
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/images/splash_logo.png
+  android: true
+  ios: true
+  web: false

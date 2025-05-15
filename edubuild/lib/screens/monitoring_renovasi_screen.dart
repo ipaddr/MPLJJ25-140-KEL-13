@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/mobile_wrapper.dart';
 
 class MonitoringRenovasiScreen extends StatelessWidget {
   final String namaSekolah;
@@ -19,39 +20,40 @@ class MonitoringRenovasiScreen extends StatelessWidget {
         title: const Text('Monitoring Renovasi'),
         backgroundColor: Colors.blue[900],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Status Proyek',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        child: MobileWrapper(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              const Text(
+                'Status Proyek',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 10),
-            Card(
-              elevation: 4,
-              child: ListTile(
-                leading: const Icon(Icons.school, color: Colors.blue),
-                title: Text(namaSekolah),
-                subtitle: Text(statusProyek),
+              const SizedBox(height: 10),
+              Card(
+                elevation: 4,
+                child: ListTile(
+                  leading: const Icon(Icons.school, color: Colors.blue),
+                  title: Text(namaSekolah),
+                  subtitle: Text(statusProyek),
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Riwayat Perbaikan',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 20),
+              const Text(
+                'Riwayat Perbaikan',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 10),
-            // Perbaikan ada di sini: gunakan Expanded hanya saat layout mengizinkan
-            Expanded(
-              child: ListView.builder(
+              const SizedBox(height: 10),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: riwayatPerbaikan.length,
                 itemBuilder: (context, index) {
                   return Card(
@@ -62,8 +64,9 @@ class MonitoringRenovasiScreen extends StatelessWidget {
                   );
                 },
               ),
-            ),
-          ],
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
     );

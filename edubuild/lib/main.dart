@@ -5,9 +5,10 @@ import 'package:edubuild/screens/add_school_screen.dart';
 import 'package:edubuild/screens/monitoring_renovasi_screen.dart';
 import 'package:edubuild/screens/umpan_balik_screen.dart';
 import 'package:edubuild/screens/search_school_screen.dart';
-
-// ✅ Tambahkan import untuk HomeWithTabs
 import 'package:edubuild/screens/home_with_tabs.dart';
+
+// ✅ Tambahkan ini
+import 'package:edubuild/widgets/mobile_wrapper.dart';
 
 void main() {
   runApp(const MyApp());
@@ -24,34 +25,37 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
       ),
-      home: LoginScreen(), // Bisa juga ganti ke HomeWithTabs() langsung untuk testing
+      home: MobileWrapper(child: LoginScreen()), // ✅ tanpa const
       routes: {
-        '/home': (context) => const HomeScreen(),
-        '/addSchool': (context) => const AddSchoolScreen(),
-        '/monitoringRenovasi': (context) => const MonitoringRenovasiScreen(
-              namaSekolah: 'SMA Negeri 1 Padang',
-              statusProyek: 'Dalam Proses Renovasi',
-              riwayatPerbaikan: [
-                'Pengecatan ulang ruang kelas (Jan 2024)',
-                'Perbaikan atap bocor (Feb 2024)',
-              ],
+        '/home': (context) => const MobileWrapper(child: HomeScreen()),
+        '/addSchool': (context) => const MobileWrapper(child: AddSchoolScreen()),
+        '/monitoringRenovasi': (context) => const MobileWrapper(
+              child: MonitoringRenovasiScreen(
+                namaSekolah: 'SMA Negeri 1 Padang',
+                statusProyek: 'Dalam Proses Renovasi',
+                riwayatPerbaikan: [
+                  'Pengecatan ulang ruang kelas (Jan 2024)',
+                  'Perbaikan atap bocor (Feb 2024)',
+                ],
+              ),
             ),
-        '/umpanBalik': (context) => UmpanBalikScreen(
-              feedbackList: [
-                {
-                  'nama': 'Budi',
-                  'rating': 5,
-                  'komentar': 'Aplikasinya sangat membantu!'
-                },
-                {
-                  'nama': 'Sari',
-                  'rating': 4,
-                  'komentar': 'UI-nya mudah dipahami.'
-                },
-              ],
+        '/umpanBalik': (context) => const MobileWrapper(
+              child: UmpanBalikScreen(
+                feedbackList: [
+                  {
+                    'nama': 'Budi',
+                    'rating': 5,
+                    'komentar': 'Aplikasinya sangat membantu!'
+                  },
+                  {
+                    'nama': 'Sari',
+                    'rating': 4,
+                    'komentar': 'UI-nya mudah dipahami.'
+                  },
+                ],
+              ),
             ),
-        // ✅ Tambahkan route ke halaman tab baru
-        '/homeWithTabs': (context) => HomeWithTabs(),
+        '/homeWithTabs': (context) => MobileWrapper(child: HomeWithTabs()), // ✅ tanpa const
       },
     );
   }
