@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import '../widgets/mobile_wrapper.dart'; // pastikan file ini ada
+import '../widgets/mobile_wrapper.dart';
+import 'dart:async'; // pastikan file ini ada
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }

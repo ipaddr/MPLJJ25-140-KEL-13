@@ -1,5 +1,15 @@
 import 'package:flutter/material.dart';
 import '../widgets/mobile_wrapper.dart';
+import 'umpan_balik_screen.dart';
+import 'package:dotted_border/dotted_border.dart';
+import 'monitoring_renovasi_screen.dart';
+import 'dart:async';
+import 'home_screen.dart'; 
+
+int rating = 0;
+String? selectedDate;
+
+List<String> dateOptions = ['1 Mei 2025', '2 Mei 2025', '3 Mei 2025'];
 
 class UmpanBalikScreen extends StatefulWidget {
   final List<Map<String, dynamic>> feedbackList;
@@ -11,11 +21,15 @@ class UmpanBalikScreen extends StatefulWidget {
 }
 
 class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
+  int _selectedIndex = 0;
   final TextEditingController namaController = TextEditingController();
   final TextEditingController komentarController = TextEditingController();
   int rating = 3;
 
   List<Map<String, dynamic>> feedbacks = [];
+  String? selectedDate;
+
+  List<String> dateOptions = ['1 Mei 2025', '2 Mei 2025', '3 Mei 2025'];
 
   @override
   void initState() {
@@ -49,125 +63,200 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Umpan Balik Pengguna'),
+        leading: const BackButton(color: Colors.white),
+        title: const Text('Umpan Balik', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.blue[900],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              child: MobileWrapper(
+      body: SingleChildScrollView(
+        child: MobileWrapper(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              const Text(
+                'Beri Penilaian Renovasi',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'SMA Negeri 1 Padang',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const Text(
+                'Jl. Belanti Raya, Lolong Belanti',
+                style: TextStyle(fontSize: 14, color: Colors.white70),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Berikan umpan balikmu!',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: namaController,
-                      decoration: const InputDecoration(
-                        labelText: 'Nama',
-                        border: OutlineInputBorder(),
+                      'Status',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: komentarController,
-                      maxLines: 3,
-                      decoration: const InputDecoration(
-                        labelText: 'Komentar',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
                     Row(
-                      children: [
-                        const Text('Rating:'),
-                        const SizedBox(width: 8),
-                        for (int i = 1; i <= 5; i++)
-                          IconButton(
-                            onPressed: () => setState(() => rating = i),
-                            icon: Icon(
-                              i <= rating ? Icons.star : Icons.star_border,
-                              color: Colors.amber,
-                            ),
+                      children: List.generate(5, (index) {
+                        return IconButton(
+                          icon: Icon(
+                            Icons.star,
+                            color: index < rating ? Colors.orange : Colors.grey,
                           ),
-                      ],
+                          onPressed: () {
+                            setState(() {
+                              rating = index + 1;
+                            });
+                          },
+                        );
+                      }),
                     ),
-                    const SizedBox(height: 12),
-                    Center(
-                      child: ElevatedButton.icon(
+                    const SizedBox(height: 16),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Komentar',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: komentarController,
+                      maxLines: 4,
+                      decoration: const InputDecoration(
+                        hintText: 'Tuliskan komentar Anda...',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
                         onPressed: _submitFeedback,
-                        icon: const Icon(Icons.send),
-                        label: const Text('Kirim'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[800],
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          backgroundColor: Colors.blue[900],
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        child: const Text(
+                          'Kirim',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                    const Divider(height: 32),
+
                     const Text(
-                      'Daftar Umpan Balik',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      'Tanggal',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                     const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      value: selectedDate,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                      ),
+                      hint: const Text('--Pilih Tanggal--'),
+                      items:
+                          dateOptions.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedDate = newValue!;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 32),
+                    Center(
+                      child: Text(
+                        '© 2025 EduBuild. All rights reserved.',
+                        style: TextStyle(color: Colors.white54, fontSize: 12),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                   ],
                 ),
               ),
+            ],
+          ),
+        ),
+      ),
+      backgroundColor: Colors.blue[900],
+      // Background biru seperti di desain
+      bottomNavigationBar: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Text(
+                "© EduBuild 2025",
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
             ),
-          ),
-          Expanded(
-            child: feedbacks.isEmpty
-                ? const Center(
-                    child: Text(
-                      'Belum ada umpan balik.',
-                      style: TextStyle(fontSize: 16, color: Colors.black54),
+            BottomNavigationBar(
+              currentIndex: _selectedIndex,
+              onTap: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+
+                // Navigasi sesuai index
+                if (index == 2) {
+                  // Index 2 adalah Umpan Balik
+                  // Import umpan_balik_screen.dart harus sudah ditambahkan di bagian atas file
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => UmpanBalikScreen(
+                            feedbackList:
+                                [], // Kirim daftar kosong atau data feedback yang ada
+                          ),
                     ),
-                  )
-                : ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    itemCount: feedbacks.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final feedback = feedbacks[index];
-                      return Card(
-                        elevation: 3,
-                        child: ListTile(
-                          leading: Icon(Icons.person, color: Colors.blue[800]),
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(feedback['nama']),
-                              Row(
-                                children: List.generate(
-                                  5,
-                                  (i) => Icon(
-                                    i < feedback['rating']
-                                        ? Icons.star
-                                        : Icons.star_border,
-                                    color: Colors.amber,
-                                    size: 20,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(feedback['komentar']),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-          ),
-        ],
+                  );
+                }
+              },
+              selectedItemColor: Colors.blue,
+              unselectedItemColor: Colors.grey,
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.note_alt),
+                  label: "Form Input",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.assessment),
+                  label: "Monitoring",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.feedback),
+                  label: "Umpan Balik",
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
