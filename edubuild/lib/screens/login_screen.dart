@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/mobile_wrapper.dart';
-import 'dart:async'; // pastikan file ini ada
+import 'dart:async';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -73,6 +73,23 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
+
+                // Tambahan: tombol untuk masuk admin
+                const SizedBox(height: 20),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/adminHome');
+                  },
+                  child: const Text(
+                    'Masuk sebagai Admin',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+
                 const SizedBox(height: 40),
               ],
             ),

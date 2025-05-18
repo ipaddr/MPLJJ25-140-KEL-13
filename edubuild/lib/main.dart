@@ -4,7 +4,10 @@ import 'package:edubuild/screens/home_screen.dart';
 import 'package:edubuild/screens/monitoring_renovasi_screen.dart';
 import 'package:edubuild/screens/umpan_balik_screen.dart';
 
-// ✅ Tambahkan ini
+// Tambahan screen admin dan order detail
+import 'package:edubuild/screens/admin_home_screen.dart';
+import 'package:edubuild/screens/order_detail_screen.dart';
+
 import 'package:edubuild/widgets/mobile_wrapper.dart';
 
 void main() {
@@ -20,11 +23,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'EduBuild',
       theme: ThemeData(primarySwatch: Colors.deepPurple),
-      home: MobileWrapper(child: LoginScreen()), // ✅ tanpa const
+      home: const MobileWrapper(child: LoginScreen()),
       routes: {
         '/home': (context) => const MobileWrapper(child: HomeScreen()),
-        '/monitoringRenovasi':
-            (context) => const MobileWrapper(
+
+        '/monitoringRenovasi': (context) => const MobileWrapper(
               child: MonitoringRenovasiScreen(
                 namaSekolah: 'SMA Negeri 1 Padang',
                 statusProyekAwal: 'Belum Selesai',
@@ -35,8 +38,8 @@ class MyApp extends StatelessWidget {
                 ],
               ),
             ),
-        '/umpanBalik':
-            (context) => const MobileWrapper(
+
+        '/umpanBalik': (context) => const MobileWrapper(
               child: UmpanBalikScreen(
                 feedbackList: [
                   {
@@ -51,7 +54,11 @@ class MyApp extends StatelessWidget {
                   },
                 ],
               ),
-            ), // ✅ tanpa const
+            ),
+
+        // Routes tambahan Admin dan Order Detail
+        '/adminHome': (context) => const AdminHomeScreen(),
+        '/orderDetail': (context) => const OrderDetailScreen(),
       },
     );
   }
