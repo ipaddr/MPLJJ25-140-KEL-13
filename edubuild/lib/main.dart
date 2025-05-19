@@ -37,26 +37,7 @@ class MyApp extends StatelessWidget {
             ),
 
         '/umpanBalik': (context) => const MobileWrapper(
-              child: UmpanBalikScreen(
-                namaSekolah: 'SMA Negeri 1 Padang',
-                riwayatPerbaikan: [
-                  'Pengecatan tembok - April 2024',
-                  'Pemasangan atap - Mei 2024',
-                  'Perbaikan lantai - Juni 2024',
-                ],
-                feedbackList: [
-                  {
-                    'nama': 'Budi',
-                    'rating': 5,
-                    'komentar': 'Aplikasinya sangat membantu!',
-                  },
-                  {
-                    'nama': 'Sari',
-                    'rating': 4,
-                    'komentar': 'UI-nya mudah dipahami.',
-                  },
-                ],
-              ),
+              child: UmpanBalikScreen(),
             ),
 
         '/adminHome': (context) => const AdminHomeScreen(),

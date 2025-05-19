@@ -315,6 +315,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 24),
+                  const Divider(color: Colors.white70),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'EduBuild\n© 2025 EduBuild.\nPlatform untuk memantau dan menilai kondisi sekolah di seluruh Indonesia.\nHubungi Kami : support@edubuild.id',
+                    style: TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
                   const SizedBox(height: 20),
                 ],
               ),
@@ -331,17 +338,6 @@ class _HomeScreenState extends State<HomeScreen> {
             });
           },
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result = await Navigator.pushNamed(context, '/addSchool');
-          if (result != null && result is Map<String, dynamic>) {
-            _addSchool(result);
-          }
-        },
-        backgroundColor: const Color(0xFF1E3A8A),
-        tooltip: 'Tambah Sekolah',
-        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

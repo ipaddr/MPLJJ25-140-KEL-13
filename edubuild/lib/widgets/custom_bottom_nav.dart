@@ -61,18 +61,7 @@ class CustomBottomNav extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder:
-                        (context) => UmpanBalikScreen(
-                          namaSekolah: 'SMA Negeri 1 Padang',
-                          riwayatPerbaikan: const [
-                            'Penggantian Atap',
-                            'Cat Dinding',
-                            'Pemasangan Keramik',
-                          ],
-                          feedbackList: const [
-                            {'nama': 'Perlu pengecatan ulang'},
-                            {'nama': 'Kondisi toilet kurang bersih'},
-                          ],
-                        ),
+                        (context) => UmpanBalikScreen(),
                   ),
                 );
                 break;

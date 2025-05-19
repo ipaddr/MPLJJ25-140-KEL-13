@@ -3,188 +3,147 @@ import '../widgets/mobile_wrapper.dart';
 import '../widgets/custom_bottom_nav.dart';
 
 class UmpanBalikScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> feedbackList;
-  final String namaSekolah;
-  final List<String> riwayatPerbaikan;
-
-  const UmpanBalikScreen({
-    super.key,
-    required this.feedbackList,
-    required this.namaSekolah,
-    required this.riwayatPerbaikan,
-  });
+  const UmpanBalikScreen({super.key});
 
   @override
   State<UmpanBalikScreen> createState() => _UmpanBalikScreenState();
 }
 
 class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
-  int _selectedIndex = 0;
-  final TextEditingController namaController = TextEditingController();
-  final TextEditingController komentarController = TextEditingController();
-  int rating = 3;
-  String statusProyek = 'Belum Dimulai';
-  List<Map<String, dynamic>> feedbacks = [];
-  String? selectedDate;
-  List<String> dateOptions = ['1 Mei 2025', '2 Mei 2025', '3 Mei 2025'];
+  int _selectedIndex = 2;
+  int rating = 0;
+  DateTime? selectedDate;
+  final TextEditingController commentController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    feedbacks = List.from(widget.feedbackList);
-  }
-
-  @override
-  void dispose() {
-    namaController.dispose();
-    komentarController.dispose();
-    super.dispose();
-  }
-
-  void _addSchool(Map<String, dynamic> newSchool) {
-    setState(() {
-      if (newSchool.containsKey('feedback')) {
-        feedbacks.add(newSchool['feedback']);
-      }
-      if (newSchool.containsKey('repairs')) {
-        widget.riwayatPerbaikan.addAll(List<String>.from(newSchool['repairs']));
-      }
-    });
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2023),
+      lastDate: DateTime(2030),
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF01497C),
       appBar: AppBar(
-        title: const Text('Monitoring Renovasi', textAlign: TextAlign.center),
-        centerTitle: true,
-        backgroundColor: const Color(0xFF005792),
-        automaticallyImplyLeading: false,
+        backgroundColor: Colors.white,
+        title: const Text(
+          'Umpan Balik',
+          style: TextStyle(color: Colors.black),
+        ),
+        leading: const BackButton(color: Colors.black),
+        elevation: 0,
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: MobileWrapper(
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Status Proyek',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 10),
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.grey.shade400),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Beri Penilaian Renovasi',
+              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'SMA Negeri 1 Padang\nJl. Belanti Raya, Lolong Belanti',
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Status', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: List.generate(5, (index) {
+                      return IconButton(
+                        icon: Icon(
+                          Icons.star,
+                          color: index < rating ? Colors.orange : Colors.grey,
                         ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            isExpanded: true,
-                            value: statusProyek,
-                            alignment: Alignment.center,
-                            items: const [
-                              DropdownMenuItem(
-                                value: 'Belum Dimulai',
-                                child: Text('Belum Dimulai'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'Sedang Berlangsung',
-                                child: Text('Sedang Berlangsung'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'Sudah Selesai',
-                                child: Text('Sudah Selesai'),
-                              ),
-                            ],
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() {
-                                  statusProyek = value;
-                                });
-                              }
-                            },
-                          ),
-                        ),
+                        onPressed: () {
+                          setState(() {
+                            rating = index + 1;
+                          });
+                        },
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text('Tanggal', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: () => _selectDate(context),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade400),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            widget.namaSekolah,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                            textAlign: TextAlign.center,
+                            selectedDate == null
+                                ? '--Pilih Tanggal--'
+                                : '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}',
+                            style: const TextStyle(fontSize: 16),
                           ),
-                          const SizedBox(height: 8),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.asset(
-                              'assets/images/sekolah.png',
-                              height: 150,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '${widget.namaSekolah}\nPemasangan Atap Baru',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(color: Colors.black),
-                          ),
+                          const Icon(Icons.arrow_drop_down),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'Riwayat Perbaikan',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                  ),
+                  const SizedBox(height: 12),
+                  const Text('Komentar Anda', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: commentController,
+                    maxLines: 5,
+                    decoration: InputDecoration(
+                      hintText: 'Tulis Komentar Anda.....',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF01497C),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 10),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: widget.riwayatPerbaikan.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          child: ListTile(
-                            leading: const Icon(Icons.history),
-                            title: Text(
-                              widget.riwayatPerbaikan[index],
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        );
+                      onPressed: () {
+                        // TODO: Tambahkan logika pengiriman umpan balik
                       },
+                      child: const Text('Kirim'),
                     ),
-                    const SizedBox(height: 32),
-                  ],
-                ),
+                  )
+                ],
               ),
             ),
-          ),
+            const SizedBox(height: 24),
+            const Divider(color: Colors.white70),
+            const SizedBox(height: 12),
+            const Text(
+              'EduBuild\n© 2025 EduBuild.\nPlatform untuk memantau dan menilai kondisi sekolah di seluruh Indonesia.\nHubungi Kami : support@edubuild.id',
+              style: TextStyle(color: Colors.white70, fontSize: 12),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: SafeArea(
@@ -196,17 +155,6 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
             });
           },
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result = await Navigator.pushNamed(context, '/addSchool');
-          if (result != null && result is Map<String, dynamic>) {
-            _addSchool(result);
-          }
-        },
-        backgroundColor: const Color(0xFF1E3A8A),
-        tooltip: 'Tambah Sekolah',
-        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
