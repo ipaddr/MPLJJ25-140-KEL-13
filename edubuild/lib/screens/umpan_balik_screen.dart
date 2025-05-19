@@ -41,6 +41,17 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
     super.dispose();
   }
 
+  void _addSchool(Map<String, dynamic> newSchool) {
+    setState(() {
+      if (newSchool.containsKey('feedback')) {
+        feedbacks.add(newSchool['feedback']);
+      }
+      if (newSchool.containsKey('repairs')) {
+        widget.riwayatPerbaikan.addAll(List<String>.from(newSchool['repairs']));
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -185,6 +196,17 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
             });
           },
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await Navigator.pushNamed(context, '/addSchool');
+          if (result != null && result is Map<String, dynamic>) {
+            _addSchool(result);
+          }
+        },
+        backgroundColor: const Color(0xFF1E3A8A),
+        tooltip: 'Tambah Sekolah',
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

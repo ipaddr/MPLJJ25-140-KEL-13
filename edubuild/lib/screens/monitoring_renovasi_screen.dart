@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 import '../widgets/mobile_wrapper.dart';
-import 'umpan_balik_screen.dart';
-import 'home_screen.dart';
-import 'monitoring_renovasi_screen.dart';
-import 'dart:async'; // Pastikan nama file sesuai
 import '../widgets/custom_bottom_nav.dart';
 
 class MonitoringRenovasiScreen extends StatefulWidget {
@@ -31,6 +27,14 @@ class _MonitoringRenovasiScreenState extends State<MonitoringRenovasiScreen> {
   void initState() {
     super.initState();
     statusProyek = widget.statusProyekAwal;
+  }
+
+  void _addSchool(Map<String, dynamic> schoolData) {
+    setState(() {
+      // Handle the new school data here
+      // This is where you would add the logic to update the UI or state
+      // based on the schoolData received
+    });
   }
 
   @override
@@ -169,6 +173,17 @@ class _MonitoringRenovasiScreenState extends State<MonitoringRenovasiScreen> {
             });
           },
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await Navigator.pushNamed(context, '/addSchool');
+          if (result != null && result is Map<String, dynamic>) {
+            _addSchool(result);
+          }
+        },
+        backgroundColor: const Color(0xFF1E3A8A),
+        tooltip: 'Tambah Sekolah',
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

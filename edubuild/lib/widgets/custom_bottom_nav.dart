@@ -32,44 +32,50 @@ class CustomBottomNav extends StatelessWidget {
             onIndexChanged(index);
 
             // Navigasi sesuai index
-            if (index == 0) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const HomeScreen()),
-              );
-            } else if (index == 1) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MonitoringRenovasiScreen(
-                    namaSekolah: 'SMA Negeri 1 Padang',
-                    statusProyekAwal: 'Sedang Berlangsung',
-                    riwayatPerbaikan: [
-                      'Penggantian Atap',
-                      'Cat Dinding',
-                      'Pemasangan Keramik',
-                    ],
+            switch (index) {
+              case 0:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomeScreen()),
+                );
+                break;
+              case 1:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => MonitoringRenovasiScreen(
+                          namaSekolah: 'SMA Negeri 1 Padang',
+                          statusProyekAwal: 'Sedang Berlangsung',
+                          riwayatPerbaikan: const [
+                            'Penggantian Atap',
+                            'Cat Dinding',
+                            'Pemasangan Keramik',
+                          ],
+                        ),
                   ),
-                ),
-              );
-            } else if (index == 2) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => UmpanBalikScreen(
-                    namaSekolah: 'SMA Negeri 1 Padang',
-                    riwayatPerbaikan: [
-                      'Penggantian Atap',
-                      'Cat Dinding',
-                      'Pemasangan Keramik',
-                    ],
-                    feedbackList: [
-                      {'nama': 'Perlu pengecatan ulang'},
-                      {'nama': 'Kondisi toilet kurang bersih'},
-                    ],
+                );
+                break;
+              case 2:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => UmpanBalikScreen(
+                          namaSekolah: 'SMA Negeri 1 Padang',
+                          riwayatPerbaikan: const [
+                            'Penggantian Atap',
+                            'Cat Dinding',
+                            'Pemasangan Keramik',
+                          ],
+                          feedbackList: const [
+                            {'nama': 'Perlu pengecatan ulang'},
+                            {'nama': 'Kondisi toilet kurang bersih'},
+                          ],
+                        ),
                   ),
-                ),
-              );
+                );
+                break;
             }
           },
           items: const [
