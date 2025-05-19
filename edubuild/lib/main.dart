@@ -3,11 +3,8 @@ import 'package:edubuild/screens/login_screen.dart';
 import 'package:edubuild/screens/home_screen.dart';
 import 'package:edubuild/screens/monitoring_renovasi_screen.dart';
 import 'package:edubuild/screens/umpan_balik_screen.dart';
-
-// Tambahan screen admin dan order detail
 import 'package:edubuild/screens/admin_home_screen.dart';
 import 'package:edubuild/screens/order_detail_screen.dart';
-
 import 'package:edubuild/widgets/mobile_wrapper.dart';
 
 void main() {
@@ -41,6 +38,12 @@ class MyApp extends StatelessWidget {
 
         '/umpanBalik': (context) => const MobileWrapper(
               child: UmpanBalikScreen(
+                namaSekolah: 'SMA Negeri 1 Padang',
+                riwayatPerbaikan: [
+                  'Pengecatan tembok - April 2024',
+                  'Pemasangan atap - Mei 2024',
+                  'Perbaikan lantai - Juni 2024',
+                ],
                 feedbackList: [
                   {
                     'nama': 'Budi',
@@ -56,7 +59,6 @@ class MyApp extends StatelessWidget {
               ),
             ),
 
-        // Routes tambahan Admin dan Order Detail
         '/adminHome': (context) => const AdminHomeScreen(),
         '/orderDetail': (context) => const OrderDetailScreen(),
       },
