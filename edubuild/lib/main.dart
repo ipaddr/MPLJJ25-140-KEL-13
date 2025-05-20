@@ -5,7 +5,10 @@ import 'package:edubuild/screens/monitoring_renovasi_screen.dart';
 import 'package:edubuild/screens/umpan_balik_screen.dart';
 import 'package:edubuild/screens/admin_home_screen.dart';
 import 'package:edubuild/screens/order_detail_screen.dart';
+<<<<<<< HEAD
 import 'package:edubuild/screens/detail_pesanan_screen.dart';
+=======
+>>>>>>> a1f4df323fb068d3e295688e1ca09c9bc6a2d037
 import 'package:edubuild/widgets/mobile_wrapper.dart';
 
 void main() {
@@ -39,6 +42,7 @@ class MyApp extends StatelessWidget {
           );
         }
 
+<<<<<<< HEAD
         final routes = {
           '/home': (context) => const MobileWrapper(child: HomeScreen()),
           '/monitoringRenovasi': (context) => const MobileWrapper(
@@ -83,6 +87,14 @@ class MyApp extends StatelessWidget {
             body: Center(child: Text('Halaman tidak ditemukan')),
           ),
         );
+=======
+        '/umpanBalik': (context) => const MobileWrapper(
+              child: UmpanBalikScreen(),
+            ),
+
+        '/adminHome': (context) => const AdminHomeScreen(),
+        '/orderDetail': (context) => const OrderDetailScreen(),
+>>>>>>> a1f4df323fb068d3e295688e1ca09c9bc6a2d037
       },
     );
   }

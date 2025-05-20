@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/mobile_wrapper.dart';
+<<<<<<< HEAD
 import 'home_screen.dart';
 import 'monitoring_renovasi_screen.dart';
 
@@ -10,12 +11,19 @@ class UmpanBalikScreen extends StatefulWidget {
     super.key,
     required this.feedbackList,
   });
+=======
+import '../widgets/custom_bottom_nav.dart';
+
+class UmpanBalikScreen extends StatefulWidget {
+  const UmpanBalikScreen({super.key});
+>>>>>>> a1f4df323fb068d3e295688e1ca09c9bc6a2d037
 
   @override
   State<UmpanBalikScreen> createState() => _UmpanBalikScreenState();
 }
 
 class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
+<<<<<<< HEAD
   int _selectedIndex = 2; // Set ke 2 karena ini adalah tab Umpan Balik
   final TextEditingController _feedbackController = TextEditingController();
   List<Map<String, dynamic>> _feedbackList = [];
@@ -31,6 +39,23 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
       setState(() {
         _feedbackList.add({'nama': _feedbackController.text.trim()});
         _feedbackController.clear();
+=======
+  int _selectedIndex = 2;
+  int rating = 0;
+  DateTime? selectedDate;
+  final TextEditingController commentController = TextEditingController();
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2023),
+      lastDate: DateTime(2030),
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+>>>>>>> a1f4df323fb068d3e295688e1ca09c9bc6a2d037
       });
     }
   }
@@ -38,7 +63,9 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF01497C),
       appBar: AppBar(
+<<<<<<< HEAD
         title: const Text('Umpan Balik'),
         backgroundColor: const Color(0xFF005792),
       ),
@@ -116,16 +143,111 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
         ),
       ),
       bottomNavigationBar: SafeArea(
+=======
+        backgroundColor: Colors.white,
+        title: const Text(
+          'Umpan Balik',
+          style: TextStyle(color: Colors.black),
+        ),
+        leading: const BackButton(color: Colors.black),
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+>>>>>>> a1f4df323fb068d3e295688e1ca09c9bc6a2d037
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text(
-                "© EduBuild 2025",
-                style: TextStyle(fontSize: 12, color: Colors.grey),
+            const Text(
+              'Beri Penilaian Renovasi',
+              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'SMA Negeri 1 Padang\nJl. Belanti Raya, Lolong Belanti',
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Status', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: List.generate(5, (index) {
+                      return IconButton(
+                        icon: Icon(
+                          Icons.star,
+                          color: index < rating ? Colors.orange : Colors.grey,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            rating = index + 1;
+                          });
+                        },
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text('Tanggal', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: () => _selectDate(context),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade400),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            selectedDate == null
+                                ? '--Pilih Tanggal--'
+                                : '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          const Icon(Icons.arrow_drop_down),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text('Komentar Anda', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: commentController,
+                    maxLines: 5,
+                    decoration: InputDecoration(
+                      hintText: 'Tulis Komentar Anda.....',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF01497C),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      onPressed: () {
+                        // TODO: Tambahkan logika pengiriman umpan balik
+                      },
+                      child: const Text('Kirim'),
+                    ),
+                  )
+                ],
               ),
             ),
+<<<<<<< HEAD
             BottomNavigationBar(
               currentIndex: _selectedIndex,
               onTap: (index) {
@@ -182,8 +304,26 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
                   label: "Umpan Balik",
                 ),
               ],
+=======
+            const SizedBox(height: 24),
+            const Divider(color: Colors.white70),
+            const SizedBox(height: 12),
+            const Text(
+              'EduBuild\n© 2025 EduBuild.\nPlatform untuk memantau dan menilai kondisi sekolah di seluruh Indonesia.\nHubungi Kami : support@edubuild.id',
+              style: TextStyle(color: Colors.white70, fontSize: 12),
+>>>>>>> a1f4df323fb068d3e295688e1ca09c9bc6a2d037
             ),
           ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: CustomBottomNav(
+          selectedIndex: _selectedIndex,
+          onIndexChanged: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
         ),
       ),
     );

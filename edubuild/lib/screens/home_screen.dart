@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'monitoring_renovasi_screen.dart'; // Import halaman Monitoring Renovasi
 import 'umpan_balik_screen.dart'; // Import halaman Umpan Balik jika ada
+=======
+import '../widgets/mobile_wrapper.dart';
+import 'umpan_balik_screen.dart';
+import 'package:dotted_border/dotted_border.dart';
+import 'monitoring_renovasi_screen.dart';
+import 'dart:async';
+import '../widgets/custom_bottom_nav.dart';
+>>>>>>> a1f4df323fb068d3e295688e1ca09c9bc6a2d037
 
 class HomeScreen extends StatefulWidget {  // Ubah menjadi StatefulWidget untuk menyimpan state
   const HomeScreen({super.key});
@@ -412,4 +421,279 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }).toList();
   }
+<<<<<<< HEAD
 }
+=======
+
+  List<Map<String, dynamic>> feedbackList = [];
+  List<Map<String, dynamic>> schools = [];
+
+  void _addSchool(Map<String, dynamic> newSchool) {
+    setState(() {
+      schools.add(newSchool);
+    });
+  }
+
+  void _addFeedback(Map<String, dynamic> newFeedback) {
+    setState(() {
+      feedbackList.add(newFeedback);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            child: MobileWrapper(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // HEADER
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: const [
+                        Text(
+                          'EduBuild',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Building Schools, Building the Future',
+                          style: TextStyle(fontSize: 14, color: Colors.black54),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // SEARCH BAR
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            textAlign: TextAlign.center,
+                            decoration: InputDecoration(
+                              hintText: 'Search School',
+                              prefixIcon: Icon(Icons.search),
+                              filled: true,
+                              fillColor: Colors.white,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Icon(Icons.filter_alt, color: Colors.black54),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // BUTTONS ROW
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/formInput');
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                elevation: 4,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: const Text(
+                                'Pelaporan',
+                                style: TextStyle(color: Colors.black),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/monitoring');
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                elevation: 4,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: const Text(
+                                'Visualisasi',
+                                style: TextStyle(color: Colors.black),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/feedback');
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                elevation: 4,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: const Text(
+                                'Feedback',
+                                style: TextStyle(color: Colors.black),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+
+                  // BLUE CONTAINER
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade800,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Penilaian kelengkapan renovasi sekolah',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ..._buildRenovationItems(),
+                        const SizedBox(height: 16),
+                        // Upload button
+                        GestureDetector(
+                          onTap: () {},
+                          child: DottedBorder(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                            dashPattern: [6, 4],
+                            borderType: BorderType.RRect,
+                            radius: const Radius.circular(12),
+                            child: Container(
+                              height: 100,
+                              width: double.infinity,
+                              alignment: Alignment.center,
+                              child: const Icon(
+                                Icons.upload_file,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Total = Rp 2.550.000',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 10),
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: () {},
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.blue.shade800,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 32,
+                                vertical: 12,
+                              ),
+                            ),
+                            child: const Text(
+                              'Kirim Laporan',
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Divider(color: Colors.white70),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'EduBuild\n© 2025 EduBuild.\nPlatform untuk memantau dan menilai kondisi sekolah di seluruh Indonesia.\nHubungi Kami : support@edubuild.id',
+                    style: TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: CustomBottomNav(
+          selectedIndex: _selectedIndex,
+          onIndexChanged: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+        ),
+      ),
+    );
+  }
+}
+>>>>>>> a1f4df323fb068d3e295688e1ca09c9bc6a2d037
