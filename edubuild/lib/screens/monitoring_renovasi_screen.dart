@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/mobile_wrapper.dart';
 import 'umpan_balik_screen.dart';
 import 'home_screen.dart'; 
-import 'monitoring_renovasi_screen.dart';
-import 'dart:async';// Pastikan nama file sesuai
-
+import 'dart:async';
 
 class MonitoringRenovasiScreen extends StatefulWidget {
   final String namaSekolah;
@@ -24,7 +22,7 @@ class MonitoringRenovasiScreen extends StatefulWidget {
 }
 
 class _MonitoringRenovasiScreenState extends State<MonitoringRenovasiScreen> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 1; // Set ke 1 karena ini adalah tab Monitoring
   late String statusProyek;
 
   @override
@@ -38,8 +36,13 @@ class _MonitoringRenovasiScreenState extends State<MonitoringRenovasiScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Monitoring Renovasi'),
-        backgroundColor: const Color(0xFF005792),
+        backgroundColor: const Color(0xFF1A5276),
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {},
+        ),
       ),
+      backgroundColor: const Color(0xFF1A5276),
       body: SingleChildScrollView(
         child: MobileWrapper(
           child: Padding(
@@ -50,19 +53,24 @@ class _MonitoringRenovasiScreenState extends State<MonitoringRenovasiScreen> {
                 const SizedBox(height: 16),
                 const Text(
                   'Status Proyek',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 16, 
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade400),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: statusProyek,
+                      isExpanded: true,
+                      icon: const Icon(Icons.keyboard_arrow_down),
                       items: const [
                         DropdownMenuItem(
                           value: 'Belum Dimulai',
@@ -76,6 +84,10 @@ class _MonitoringRenovasiScreenState extends State<MonitoringRenovasiScreen> {
                           value: 'Sudah Selesai',
                           child: Text('Sudah Selesai'),
                         ),
+                        DropdownMenuItem(
+                          value: 'Sudah / Belum Selesai',
+                          child: Text('Sudah / Belum Selesai'),
+                        ),
                       ],
                       onChanged: (value) {
                         if (value != null) {
@@ -88,138 +100,267 @@ class _MonitoringRenovasiScreenState extends State<MonitoringRenovasiScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Center(
+                
+                // School Card
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Column(
                     children: [
-                      Text(
-                        widget.namaSekolah,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        width: double.infinity,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFAED6F1),
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          widget.namaSekolah,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1A5276),
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.asset(
-                          'assets/images/sekolah.png',
-                          height: 150,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.asset(
+                                'assets/images/sekolah.png',
+                                height: 120,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    height: 120,
+                                    color: Colors.grey[200],
+                                    child: const Center(
+                                      child: Icon(Icons.home_work, size: 48),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              widget.namaSekolah,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const Text(
+                              'Pemasangan Atap Baru',
+                              style: TextStyle(
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${widget.namaSekolah}\nPemasangan Atap Baru',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(color: Colors.black),
                       ),
                     ],
                   ),
                 ),
+                
                 const SizedBox(height: 20),
+                
+                // Riwayat Perbaikan
                 const Text(
                   'Riwayat Perbaikan',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 16, 
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
                 ),
                 const SizedBox(height: 10),
+                
+                // Display Riwayat Perbaikan as buttons instead of cards
                 ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: widget.riwayatPerbaikan.length,
                   itemBuilder: (context, index) {
-                    return Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.history),
-                        title: Text(widget.riwayatPerbaikan[index]),
+                    return Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          backgroundColor: Colors.white,
+                        ),
+                        onPressed: () {},
+                        child: Text(
+                          widget.riwayatPerbaikan[index],
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
                     );
                   },
                 ),
+                
                 const SizedBox(height: 32),
               ],
             ),
           ),
         ),
       ),
-       bottomNavigationBar: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text(
-                "© EduBuild 2025",
-                style: TextStyle(fontSize: 12, color: Colors.grey),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              border: Border(
+                top: BorderSide(color: Colors.grey, width: 0.5),
               ),
             ),
-            BottomNavigationBar(
-              currentIndex: _selectedIndex,
-              onTap: (index) {
-                setState(() {
-                  _selectedIndex = index;
-                });
-
-                // Navigasi sesuai index
-                if (index == 0) {
-                  // Form Input (Home)
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomeScreen()),
-                  );
-                } else if (index == 1) {
-                  // Monitoring Renovasi
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => MonitoringRenovasiScreen(
-                            namaSekolah: 'SMA Negeri 1 Padang',
-                            statusProyekAwal: 'Sedang Berlangsung',
-                            riwayatPerbaikan: [
-                              'Penggantian Atap',
-                              'Cat Dinding',
-                              'Pemasangan Keramik',
-                            ],
-                          ),
-                    ),
-                  );
-                } else if (index == 2) {
-                  // Umpan Balik
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => UmpanBalikScreen(
-                           feedbackList: [
-                             {'nama': 'Perlu pengecatan ulang'},
-                             {'nama': 'Kondisi toilet kurang bersih'},
-                            ],
-                          ),
-                    ),
-                  );
-                }
-              },
-              selectedItemColor: Colors.blue,
-              unselectedItemColor: Colors.grey,
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.note_alt),
-                  label: "Form Input",
+            child: Column(
+              children: [
+                const Text(
+                  'EduBuild',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.assessment),
-                  label: "Monitoring",
+                const SizedBox(height: 4),
+                const Text(
+                  '© 2025 EduBuild',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.grey,
+                  ),
                 ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.feedback),
-                  label: "Umpan Balik",
+                const Text(
+                  'Platform untuk memantau dan menilai kondisi sekolah di',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.grey,
+                  ),
+                ),
+                const Text(
+                  'seluruh Indonesia',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.grey,
+                  ),
+                ),
+                const Text(
+                  'Hubungi kami: support@edubuild.id',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.grey,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                
+                // Custom Bottom Navigation
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => const HomeScreen()),
+                        );
+                      },
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.list_alt, 
+                            color: _selectedIndex == 0 ? Colors.blue[700] : Colors.grey,
+                          ),
+                          Text(
+                            'Form Input',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: _selectedIndex == 0 ? Colors.blue[700] : Colors.grey[600],
+                              fontWeight: _selectedIndex == 0 ? FontWeight.bold : FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        // Already on this page
+                      },
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.monitor,
+                            color: _selectedIndex == 1 ? Colors.blue[700] : Colors.grey,
+                          ),
+                          Text(
+                            'Monitoring',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: _selectedIndex == 1 ? Colors.blue[700] : Colors.grey[600],
+                              fontWeight: _selectedIndex == 1 ? FontWeight.bold : FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => UmpanBalikScreen(
+                              feedbackList: [
+                                {'nama': 'Perlu pengecatan ulang'},
+                                {'nama': 'Kondisi toilet kurang bersih'},
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.assignment,
+                            color: _selectedIndex == 2 ? Colors.blue[700] : Colors.grey,
+                          ),
+                          Text(
+                            'Urutan Balik',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: _selectedIndex == 2 ? Colors.blue[700] : Colors.grey[600],
+                              fontWeight: _selectedIndex == 2 ? FontWeight.bold : FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
