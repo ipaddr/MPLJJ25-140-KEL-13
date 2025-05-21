@@ -5,10 +5,7 @@ import 'package:edubuild/screens/monitoring_renovasi_screen.dart';
 import 'package:edubuild/screens/umpan_balik_screen.dart';
 import 'package:edubuild/screens/admin_home_screen.dart';
 import 'package:edubuild/screens/order_detail_screen.dart';
-<<<<<<< HEAD
 import 'package:edubuild/screens/detail_pesanan_screen.dart';
-=======
->>>>>>> a1f4df323fb068d3e295688e1ca09c9bc6a2d037
 import 'package:edubuild/widgets/mobile_wrapper.dart';
 
 void main() {
@@ -25,9 +22,8 @@ class MyApp extends StatelessWidget {
       title: 'EduBuild',
       theme: ThemeData(primarySwatch: Colors.deepPurple),
       home: const MobileWrapper(child: LoginScreen()),
-
-      // ✅ Pakai onGenerateRoute untuk handle arguments
       onGenerateRoute: (settings) {
+        // Handle routes that need arguments
         if (settings.name == '/detailPesanan') {
           final args = settings.arguments as Map<String, dynamic>;
           return MaterialPageRoute(
@@ -42,7 +38,7 @@ class MyApp extends StatelessWidget {
           );
         }
 
-<<<<<<< HEAD
+        // Handle standard routes
         final routes = {
           '/home': (context) => const MobileWrapper(child: HomeScreen()),
           '/monitoringRenovasi': (context) => const MobileWrapper(
@@ -57,44 +53,23 @@ class MyApp extends StatelessWidget {
                 ),
               ),
           '/umpanBalik': (context) => const MobileWrapper(
-                child: UmpanBalikScreen(
-                  feedbackList: [
-                    {
-                      'nama': 'Budi',
-                      'rating': 5,
-                      'komentar': 'Aplikasinya sangat membantu!',
-                    },
-                    {
-                      'nama': 'Sari',
-                      'rating': 4,
-                      'komentar': 'UI-nya mudah dipahami.',
-                    },
-                  ],
-                ),
+                child: UmpanBalikScreen(),
               ),
-          '/adminHome': (context) => const AdminHomeScreen(),
-          '/orderDetail': (context) => const OrderDetailScreen(),
+          '/adminHome': (context) => const MobileWrapper(
+                child: AdminHomeScreen(),
+              ),
+          '/orderDetail': (context) => const MobileWrapper(
+                child: OrderDetailScreen(),
+              ),
         };
 
         final builder = routes[settings.name];
         if (builder != null) {
           return MaterialPageRoute(builder: builder);
         }
-
-        // Fallback route jika route tidak ditemukan
-        return MaterialPageRoute(
-          builder: (context) => const Scaffold(
-            body: Center(child: Text('Halaman tidak ditemukan')),
-          ),
-        );
-=======
-        '/umpanBalik': (context) => const MobileWrapper(
-              child: UmpanBalikScreen(),
-            ),
-
-        '/adminHome': (context) => const AdminHomeScreen(),
-        '/orderDetail': (context) => const OrderDetailScreen(),
->>>>>>> a1f4df323fb068d3e295688e1ca09c9bc6a2d037
+        
+        // Return null for unknown routes
+        return null;
       },
     );
   }
