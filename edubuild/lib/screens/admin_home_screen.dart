@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:edubuild/screens/order_detail_screen.dart';
 import 'package:edubuild/widgets/admin_bottom_nav.dart';
+import 'package:edubuild/screens/login_screen.dart'; // Add this import
 
 class AdminHomeScreen extends StatelessWidget {
   const AdminHomeScreen({Key? key}) : super(key: key);
@@ -19,7 +20,15 @@ class AdminHomeScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: const Icon(Icons.menu, color: Colors.white),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginScreen()),
+            );
+          },
+        ),
         title: const Text('Beranda Admin', style: TextStyle(color: Colors.white)),
         centerTitle: true,
       ),
@@ -52,7 +61,6 @@ class AdminHomeScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         Image.asset('assets/images/sekolah.png', height: 80),
-
                         const SizedBox(height: 6),
                         Text(
                           schools[index],

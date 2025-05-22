@@ -40,6 +40,7 @@ class MyApp extends StatelessWidget {
 
         // Handle standard routes
         final routes = {
+          '/login': (context) => const LoginScreen(),
           '/home': (context) => const MobileWrapper(child: HomeScreen()),
           '/monitoringRenovasi': (context) => const MobileWrapper(
                 child: MonitoringRenovasiScreen(

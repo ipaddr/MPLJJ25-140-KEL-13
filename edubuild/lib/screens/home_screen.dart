@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.arrow_back, color: Colors.blue),
             onPressed: () {
               // Navigate back to login screen
-              Navigator.pushReplacementNamed(context, '/LoginScreen');
+              Navigator.pushReplacementNamed(context, '/login');
               // Or if you prefer:
               // Navigator.pushNamedAndRemoveUntil(
               //   context,
