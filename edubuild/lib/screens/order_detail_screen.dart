@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:edubuild/screens/admin_home_screen.dart'; // untuk bottom navbar
 
 class OrderDetailScreen extends StatelessWidget {
-  const OrderDetailScreen({Key? key}) : super(key: key);
+  const OrderDetailScreen({super.key});
 
   static const List<Map<String, dynamic>> items = [
     {
@@ -27,6 +26,29 @@ class OrderDetailScreen extends StatelessWidget {
     },
   ];
 
+  Widget buildAdminBottomNavBar() {
+    return BottomNavigationBar(
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.list),
+          label: 'Orders',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          label: 'Profile',
+        ),
+      ],
+      currentIndex: 1,
+      onTap: (index) {
+        // Handle navigation
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final total = items.fold<int>(0, (sum, item) => sum + (item['price'] as int));
@@ -44,10 +66,15 @@ class OrderDetailScreen extends StatelessWidget {
                 borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
               ),
               child: Row(
-                children: const [
-                  Icon(Icons.menu),
-                  SizedBox(width: 8),
-                  Column(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -140,8 +167,6 @@ class OrderDetailScreen extends StatelessWidget {
           ],
         ),
       ),
-
-      // Bottom navigation bar dari admin_home_screen.dart
       bottomNavigationBar: buildAdminBottomNavBar(),
     );
   }

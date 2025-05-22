@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../screens/home_screen.dart';
 import '../screens/monitoring_renovasi_screen.dart';
 import '../screens/umpan_balik_screen.dart';
+import '../screens/order_detail_screen.dart'; // Add this import
 
 class CustomBottomNav extends StatelessWidget {
   final int selectedIndex;
@@ -25,6 +26,29 @@ class CustomBottomNav extends StatelessWidget {
             style: TextStyle(fontSize: 12, color: Colors.grey),
           ),
         ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const OrderDetailScreen(),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.blue[800],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text('Export'),
+            ),
+          ],
+        ),
         BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           currentIndex: selectedIndex,
@@ -43,16 +67,15 @@ class CustomBottomNav extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder:
-                        (context) => MonitoringRenovasiScreen(
-                          namaSekolah: 'SMA Negeri 1 Padang',
-                          statusProyekAwal: 'Sedang Berlangsung',
-                          riwayatPerbaikan: const [
-                            'Penggantian Atap',
-                            'Cat Dinding',
-                            'Pemasangan Keramik',
-                          ],
-                        ),
+                    builder: (context) => MonitoringRenovasiScreen(
+                      namaSekolah: 'SMA Negeri 1 Padang',
+                      statusProyekAwal: 'Sedang Berlangsung',
+                      riwayatPerbaikan: const [
+                        'Penggantian Atap',
+                        'Cat Dinding',
+                        'Pemasangan Keramik',
+                      ],
+                    ),
                   ),
                 );
                 break;
@@ -60,8 +83,7 @@ class CustomBottomNav extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder:
-                        (context) => UmpanBalikScreen(),
+                    builder: (context) => UmpanBalikScreen(),
                   ),
                 );
                 break;

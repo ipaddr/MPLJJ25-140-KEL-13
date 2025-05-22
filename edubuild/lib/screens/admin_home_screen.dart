@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:edubuild/screens/order_detail_screen.dart';
+import 'package:edubuild/widgets/admin_bottom_nav.dart';
 
 class AdminHomeScreen extends StatelessWidget {
   const AdminHomeScreen({Key? key}) : super(key: key);
@@ -84,20 +85,7 @@ class AdminHomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: buildAdminBottomNavBar(),
+      bottomNavigationBar: const AdminBottomNav(),
     );
   }
-}
-
-Widget buildAdminBottomNavBar() {
-  return BottomNavigationBar(
-    backgroundColor: const Color(0xFF005A9C),
-    selectedItemColor: Colors.white,
-    unselectedItemColor: Colors.white60,
-    items: const [
-      BottomNavigationBarItem(icon: Icon(Icons.edit), label: 'Form Input'),
-      BottomNavigationBarItem(icon: Icon(Icons.monitor), label: 'Monitoring'),
-      BottomNavigationBarItem(icon: Icon(Icons.feedback), label: 'Umpan Balik'),
-    ],
-  );
 }

@@ -18,7 +18,8 @@ class MonitoringRenovasiScreen extends StatefulWidget {
   });
 
   @override
-  State<MonitoringRenovasiScreen> createState() => _MonitoringRenovasiScreenState();
+  State<MonitoringRenovasiScreen> createState() =>
+      _MonitoringRenovasiScreenState();
 }
 
 class _MonitoringRenovasiScreenState extends State<MonitoringRenovasiScreen> {
@@ -40,11 +41,14 @@ class _MonitoringRenovasiScreenState extends State<MonitoringRenovasiScreen> {
         backgroundColor: const Color(0xFF005792),
         automaticallyImplyLeading: false,
       ),
-      body: SafeArea(
+      body: Center(
         child: SingleChildScrollView(
           child: MobileWrapper(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 20.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -100,16 +104,26 @@ class _MonitoringRenovasiScreenState extends State<MonitoringRenovasiScreen> {
                     ),
                     textAlign: TextAlign.center,
                   ),
+                  // ...existing code...
                   const SizedBox(height: 8),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.asset(
-                      'assets/images/sekolah.png',
-                      height: 150,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
+                  Center(
+                    child: Container(
+                      width: 280, // Fixed width for consistency
+                      height: 180, // Fixed height for consistency
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.asset(
+                          'assets/images/sekolah.png',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  // ...existing code...
                   const SizedBox(height: 8),
                   Text(
                     '${widget.namaSekolah}\nPemasangan Atap Baru',
@@ -155,9 +169,7 @@ class _MonitoringRenovasiScreenState extends State<MonitoringRenovasiScreen> {
           } else if (index == 2) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(
-                builder: (context) => UmpanBalikScreen( ),
-              ),
+              MaterialPageRoute(builder: (context) => UmpanBalikScreen()),
             );
           }
         },

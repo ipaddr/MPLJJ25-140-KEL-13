@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import '../widgets/mobile_wrapper.dart';
 import '../widgets/custom_bottom_nav.dart';
 import 'monitoring_renovasi_screen.dart';
 import 'umpan_balik_screen.dart';
-import 'package:dotted_border/dotted_border.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,18 +17,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Map<String, dynamic>> feedbackList = [];
   final List<Map<String, dynamic>> schools = [];
 
-  void _addSchool(Map<String, dynamic> newSchool) {
-    setState(() {
-      schools.add(newSchool);
-    });
-  }
-
-  void _addFeedback(Map<String, dynamic> newFeedback) {
-    setState(() {
-      feedbackList.add(newFeedback);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,17 +24,36 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: const Padding(
+        leading: Padding(
           padding: EdgeInsets.only(left: 16.0),
-          child: Icon(Icons.menu, color: Colors.blue),
+          child: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.blue),
+            onPressed: () {
+              // Navigate back to login screen
+              Navigator.pushReplacementNamed(context, '/LoginScreen');
+              // Or if you prefer:
+              // Navigator.pushNamedAndRemoveUntil(
+              //   context,
+              //   '/login',
+              //   (route) => false,
+              // );
+            },
+          ),
         ),
         title: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('EduBuild', 
-                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-            Text('Building Schools, Building the Future',
-                style: TextStyle(fontSize: 12, color: Colors.black54)),
+            Text(
+              'EduBuild',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              'Building Schools, Building the Future',
+              style: TextStyle(fontSize: 12, color: Colors.black54),
+            ),
           ],
         ),
       ),
@@ -59,7 +64,10 @@ class _HomeScreenState extends State<HomeScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(8),
@@ -77,8 +85,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Icon(Icons.search, color: Colors.grey),
                     const SizedBox(width: 10),
                     const Expanded(
-                      child: Text('Search School', 
-                          style: TextStyle(color: Colors.grey)),
+                      child: Text(
+                        'Search School',
+                        style: TextStyle(color: Colors.grey),
+                      ),
                     ),
                     IconButton(
                       padding: EdgeInsets.zero,
@@ -120,14 +130,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Text(
                       'Penilaian kelengkapan renovasi sekolah',
                       style: TextStyle(
-                        color: Colors.white, 
-                        fontWeight: FontWeight.bold
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 12),
                     ..._buildRenovasiItems(),
                     const SizedBox(height: 16),
-                    
+
                     // Upload image area
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -147,40 +157,29 @@ class _HomeScreenState extends State<HomeScreen> {
                               border: Border.all(color: Colors.white),
                             ),
                             child: const Icon(
-                              Icons.file_upload_outlined, 
-                              color: Colors.white
+                              Icons.file_upload_outlined,
+                              color: Colors.white,
                             ),
                           ),
                           const SizedBox(height: 8),
                           const Text(
-                            'Upload Image', 
-                            style: TextStyle(color: Colors.white)
+                            'Upload Image',
+                            style: TextStyle(color: Colors.white),
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Export button and total
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.blue[800],
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text('Export'),
-                        ),
                         const Text(
                           'Total = Rp 2.550.000',
                           style: TextStyle(
-                            color: Colors.white, 
-                            fontWeight: FontWeight.bold
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
@@ -192,33 +191,33 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+
       bottomNavigationBar: CustomBottomNav(
         selectedIndex: _selectedIndex,
         onIndexChanged: (index) {
           setState(() {
             _selectedIndex = index;
-            
+
             // Handle navigation based on index
             if (index == 1) {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => MonitoringRenovasiScreen(
-                    namaSekolah: "SMA Negeri 1 Padang",
-                    statusProyekAwal: "Belum Selesai",
-                    riwayatPerbaikan: const [
-                      "Pengecatan Dinding",
-                      "Struk Pemesanan"
-                    ],
-                  ),
+                  builder:
+                      (context) => MonitoringRenovasiScreen(
+                        namaSekolah: "SMA Negeri 1 Padang",
+                        statusProyekAwal: "Belum Selesai",
+                        riwayatPerbaikan: const [
+                          "Pengecatan Dinding",
+                          "Struk Pemesanan",
+                        ],
+                      ),
                 ),
               );
             } else if (index == 2) {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => UmpanBalikScreen()
-                ),
+                MaterialPageRoute(builder: (context) => UmpanBalikScreen()),
               );
             }
           });
@@ -236,9 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
           backgroundColor: color,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         child: Text(label),
       ),
@@ -248,10 +245,18 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Widget> _buildRenovasiItems() {
     final List<Map<String, dynamic>> items = [
       {'title': 'Atap', 'desc': 'Penggantian atap rusak', 'price': 250000},
-      {'title': 'Cat Dinding', 'desc': 'Penggantian cat rusak', 'price': 500000},
-      {'title': 'Lantai', 'desc': 'Penggantian keramik', 'price': 800000}, 
+      {
+        'title': 'Cat Dinding',
+        'desc': 'Penggantian cat rusak',
+        'price': 500000,
+      },
+      {'title': 'Lantai', 'desc': 'Penggantian keramik', 'price': 800000},
       {'title': 'Loteng', 'desc': 'Penggantian loteng rusak', 'price': 1450000},
-      {'title': 'Pintu/Jendela', 'desc': 'Pintu atau Jendela rusak', 'price': 750000},
+      {
+        'title': 'Pintu/Jendela',
+        'desc': 'Pintu atau Jendela rusak',
+        'price': 750000,
+      },
     ];
 
     return items.map((item) {
@@ -271,20 +276,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(
                     item['title'],
-                    style: const TextStyle(fontWeight: FontWeight.bold)
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  Text(
-                    item['desc'],
-                    style: const TextStyle(fontSize: 12)
-                  ),
+                  Text(item['desc'], style: const TextStyle(fontSize: 12)),
                 ],
               ),
             ),
             Text(
-              'Rp ${item['price'].toString().replaceAllMapped(
-                RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-                (m) => '${m[1]}.'
-              )}',
+              'Rp ${item['price'].toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ],
