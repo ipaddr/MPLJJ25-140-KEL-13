@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../screens/home_screen.dart';
 import '../screens/monitoring_renovasi_screen.dart';
 import '../screens/umpan_balik_screen.dart';
-import '../screens/order_detail_screen.dart'; // Add this import
+import '../screens/order_detail_screen.dart';
+import '../screens/chatbot.dart'; // Perhatikan: chatbot.dart, bukan chatbot_screen.dart
 
 class CustomBottomNav extends StatelessWidget {
   final int selectedIndex;
@@ -51,11 +52,13 @@ class CustomBottomNav extends StatelessWidget {
         ),
         BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
+          backgroundColor: const Color(0xFF005792),
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.grey,
           currentIndex: selectedIndex,
           onTap: (index) {
             onIndexChanged(index);
 
-            // Navigasi sesuai index
             switch (index) {
               case 0:
                 Navigator.pushReplacement(
@@ -69,7 +72,7 @@ class CustomBottomNav extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => MonitoringRenovasiScreen(
                       namaSekolah: 'SMA Negeri 1 Padang',
-                      statusProyekAwal: 'Sedang Berlangsung',
+                      statusProyekAwal: 'Belum Dimulai',
                       riwayatPerbaikan: const [
                         'Penggantian Atap',
                         'Cat Dinding',
@@ -87,6 +90,14 @@ class CustomBottomNav extends StatelessWidget {
                   ),
                 );
                 break;
+              case 3:
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ChatBotScreen(),
+                  ),
+                );
+                break;
             }
           },
           items: const [
@@ -101,6 +112,10 @@ class CustomBottomNav extends StatelessWidget {
             BottomNavigationBarItem(
               icon: Icon(Icons.feedback),
               label: "Umpan Balik",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.chat_bubble_outline),
+              label: "Chat Bot",
             ),
           ],
         ),

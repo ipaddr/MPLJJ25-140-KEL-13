@@ -18,7 +18,7 @@ class _AdminBottomNavState extends State<AdminBottomNav> {
     const AdminHomeScreen(),
     const DashboardPage(),
     const FeedbackPage(),
-    const ChatBotPage(),
+    const ChatBotScreen(), // Ganti ke ChatBotScreen
   ];
 
   void _onItemTapped(int index) {
@@ -40,13 +40,13 @@ class _AdminBottomNavState extends State<AdminBottomNav> {
       child: BottomNavigationBar(
         backgroundColor: Colors.white,
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.grey, // Changed to grey
+        selectedItemColor: Colors.grey,
         unselectedItemColor: Colors.grey,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         selectedLabelStyle: const TextStyle(
-          color: Colors.grey, // Changed to grey
-          fontWeight: FontWeight.normal, // Removed bold
+          color: Colors.grey,
+          fontWeight: FontWeight.normal,
         ),
         items: const [
           BottomNavigationBarItem(

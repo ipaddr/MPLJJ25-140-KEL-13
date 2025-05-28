@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'package:edubuild/screens/login_screen.dart';
 import 'package:edubuild/screens/home_screen.dart';
 import 'package:edubuild/screens/monitoring_renovasi_screen.dart';
@@ -8,7 +10,11 @@ import 'package:edubuild/screens/order_detail_screen.dart';
 import 'package:edubuild/screens/detail_pesanan_screen.dart';
 import 'package:edubuild/widgets/mobile_wrapper.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform, // WAJIB untuk web!
+  );
   runApp(const MyApp());
 }
 
@@ -23,9 +29,16 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(primarySwatch: Colors.deepPurple),
       home: const MobileWrapper(child: LoginScreen()),
       onGenerateRoute: (settings) {
-        // Handle routes that need arguments
+        // Route dengan arguments
         if (settings.name == '/detailPesanan') {
-          final args = settings.arguments as Map<String, dynamic>;
+          final args = settings.arguments as Map<String, dynamic>?;
+          if (args == null) {
+            return MaterialPageRoute(
+              builder: (context) => const Scaffold(
+                body: Center(child: Text('Data pesanan tidak ditemukan')),
+              ),
+            );
+          }
           return MaterialPageRoute(
             builder: (context) => MobileWrapper(
               child: DetailPesananScreen(
@@ -38,9 +51,8 @@ class MyApp extends StatelessWidget {
           );
         }
 
-        // Handle standard routes
-        final routes = {
-          '/login': (context) => const LoginScreen(),
+        // Route standar
+        final routes = <String, WidgetBuilder>{
           '/home': (context) => const MobileWrapper(child: HomeScreen()),
           '/monitoringRenovasi': (context) => const MobileWrapper(
                 child: MonitoringRenovasiScreen(
@@ -68,9 +80,13 @@ class MyApp extends StatelessWidget {
         if (builder != null) {
           return MaterialPageRoute(builder: builder);
         }
-        
-        // Return null for unknown routes
-        return null;
+
+        // Jika route tidak ditemukan
+        return MaterialPageRoute(
+          builder: (context) => const Scaffold(
+            body: Center(child: Text('Halaman tidak ditemukan')),
+          ),
+        );
       },
     );
   }

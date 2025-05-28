@@ -1,26 +1,17 @@
 import 'package:flutter/material.dart';
-import 'chat_admin.dart'; // Tambahkan import ini
 
-class ChatBotScreen extends StatefulWidget {
-  const ChatBotScreen({super.key});
+class ChatAdminScreen extends StatefulWidget {
+  const ChatAdminScreen({super.key});
 
   @override
-  State<ChatBotScreen> createState() => _ChatBotScreenState();
+  State<ChatAdminScreen> createState() => _ChatAdminScreenState();
 }
 
-class _ChatBotScreenState extends State<ChatBotScreen> {
+class _ChatAdminScreenState extends State<ChatAdminScreen> {
   final TextEditingController _controller = TextEditingController();
   final List<Map<String, dynamic>> _messages = [
     {
-      'text': 'Selamat datang di EduBuild!',
-      'isUser': false,
-    },
-    {
-      'text': 'Bagaimana cara melihat laporan renovasi',
-      'isUser': true,
-    },
-    {
-      'text': 'Untuk melihat laporan renovasi, silahkan klik menu “Monitoring” kemudian pilih “Progress Renovasi” pada dashboard',
+      'text': 'Halo, ada yang bisa kami bantu?',
       'isUser': false,
     },
   ];
@@ -37,30 +28,14 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('ChatBot EduBuild'),
+        title: const Text('Chat Admin'),
         backgroundColor: const Color(0xFF005792),
-        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF005792),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text(
-                'ChatBot EduBuild',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
                 itemCount: _messages.length,
@@ -116,29 +91,6 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                   ),
                   onPressed: _sendMessage,
                   child: const Text('Kirim'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF005792),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ChatAdminScreen(),
-                      ),
-                    );
-                  },
-                  child: const Text('Chat Admin'),
                 ),
               ],
             ),

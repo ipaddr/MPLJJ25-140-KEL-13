@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:edubuild/screens/admin_home_screen.dart'; // untuk bottom navbar
 
 class OrderDetailScreen extends StatelessWidget {
-  const OrderDetailScreen({super.key});
+  const OrderDetailScreen({Key? key}) : super(key: key);
 
   static const List<Map<String, dynamic>> items = [
     {
@@ -26,29 +27,6 @@ class OrderDetailScreen extends StatelessWidget {
     },
   ];
 
-  Widget buildAdminBottomNavBar() {
-    return BottomNavigationBar(
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.list),
-          label: 'Orders',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
-        ),
-      ],
-      currentIndex: 1,
-      onTap: (index) {
-        // Handle navigation
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final total = items.fold<int>(0, (sum, item) => sum + (item['price'] as int));
@@ -67,16 +45,11 @@ class OrderDetailScreen extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
+                  const Icon(Icons.menu),
                   const SizedBox(width: 8),
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: const [
                       Text(
                         "EduBuild",
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -115,8 +88,8 @@ class OrderDetailScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Chip(
-                    label: const Text("Disetujui"),
+                  const Chip(
+                    label: Text("Disetujui"),
                     backgroundColor: Colors.green,
                   )
                 ],
@@ -167,7 +140,7 @@ class OrderDetailScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: buildAdminBottomNavBar(),
+      // Bottom navigation bar dari admin_home_screen.dart
     );
   }
 }

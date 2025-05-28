@@ -23,7 +23,7 @@ class MonitoringRenovasiScreen extends StatefulWidget {
 }
 
 class _MonitoringRenovasiScreenState extends State<MonitoringRenovasiScreen> {
-  final int _selectedIndex = 1; // Set ke 1 karena ini adalah tab Monitoring
+  final int _selectedIndex = 1; // Tab Monitoring
   late String statusProyek;
 
   @override
@@ -104,12 +104,11 @@ class _MonitoringRenovasiScreenState extends State<MonitoringRenovasiScreen> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  // ...existing code...
                   const SizedBox(height: 8),
                   Center(
                     child: Container(
-                      width: 280, // Fixed width for consistency
-                      height: 180, // Fixed height for consistency
+                      width: 280,
+                      height: 180,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -122,8 +121,6 @@ class _MonitoringRenovasiScreenState extends State<MonitoringRenovasiScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  // ...existing code...
                   const SizedBox(height: 8),
                   Text(
                     '${widget.namaSekolah}\nPemasangan Atap Baru',
@@ -151,6 +148,33 @@ class _MonitoringRenovasiScreenState extends State<MonitoringRenovasiScreen> {
                         ),
                       );
                     },
+                  ),
+                  const SizedBox(height: 24),
+                  // Tombol Kirim di bawah konten
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF005792),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Data renovasi dikirim!')),
+                        );
+                      },
+                      child: const Text(
+                        'Kirim',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
