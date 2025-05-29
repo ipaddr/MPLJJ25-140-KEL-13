@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         // Route dengan arguments
         if (settings.name == '/detailPesanan') {
           final args = settings.arguments as Map<String, dynamic>?;
-          if (args == null) {
+          if (args == null || args['idPesanan'] == null) {
             return MaterialPageRoute(
               builder: (context) => const Scaffold(
                 body: Center(child: Text('Data pesanan tidak ditemukan')),
@@ -42,10 +42,7 @@ class MyApp extends StatelessWidget {
           return MaterialPageRoute(
             builder: (context) => MobileWrapper(
               child: DetailPesananScreen(
-                namaSekolah: args['namaSekolah'],
                 idPesanan: args['idPesanan'],
-                status: args['status'],
-                rincian: args['rincian'],
               ),
             ),
           );

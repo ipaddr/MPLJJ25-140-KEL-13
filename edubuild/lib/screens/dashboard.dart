@@ -1,8 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../widgets/admin_bottom_nav.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({Key? key}) : super(key: key);
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'urgent':
+        return Colors.orange;
+      case 'perlu renovasi':
+        return Colors.red;
+      case 'baik':
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,44 +45,32 @@ class DashboardPage extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               const Text(
-                'Statistik proyek yg selesai',
+                'Lihat buat penilaian sekolah',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.shade300,
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Image.asset(
-                  'assets/bar_chart.png',
-                ), // Placeholder gambar chart
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'liat buat penilaiab sekolah',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              _buildSchoolItem(
-                'SMA Negeri 1 Padang',
-                'JL Belanti Raya, Lolong Belanti',
-                'Perlu Renovasi',
-                Colors.red,
-              ),
-              _buildSchoolItem(
-                'SMA Negeri 7 Padang',
-                'Jalan Bunga Tanjung Lubuk Buaya',
-                'Urgent',
-                Colors.orange,
+              // Ambil data sekolah dari Firestore
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance.collection('sekolah').snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Text('Belum ada data sekolah.');
+                  }
+                  final docs = snapshot.data!.docs;
+                  return Column(
+                    children: docs.map((doc) {
+                      final data = doc.data() as Map<String, dynamic>;
+                      final name = data['name'] ?? '-';
+                      final address = data['address'] ?? '-';
+                      final status = data['status'] ?? '-';
+                      final statusColor = _getStatusColor(status);
+                      return _buildSchoolItem(name, address, status, statusColor);
+                    }).toList(),
+                  );
+                },
               ),
               const SizedBox(height: 24),
               const Divider(),

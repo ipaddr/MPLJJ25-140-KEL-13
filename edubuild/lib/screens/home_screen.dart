@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import '../widgets/custom_bottom_nav.dart';
 import 'monitoring_renovasi_screen.dart';
 import 'umpan_balik_screen.dart';
@@ -18,33 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isLoading = true;
   String searchQuery = '';
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  List<Map<String, dynamic>> renovationItems = [
-    {
-      'title': 'Atap',
-      'desc': 'Penggantian atap rusak',
-      'price': 250000,
-    },
-    {
-      'title': 'Cat Dinding',
-      'desc': 'Penggantian cat rusak',
-      'price': 500000,
-    },
-    {
-      'title': 'Lantai',
-      'desc': 'Penggantian keramik',
-      'price': 800000,
-    },
-    {
-      'title': 'Loteng',
-      'desc': 'Penggantian loteng rusak',
-      'price': 1450000,
-    },
-    {
-      'title': 'Pintu/Jendela',
-      'desc': 'Pintu atau Jendela rusak',
-      'price': 750000,
-    },
-  ];
+  List<Map<String, dynamic>> renovationItems = [];
 
   @override
   void initState() {
@@ -56,33 +31,144 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => isLoading = true);
     try {
       final QuerySnapshot snapshot = await _firestore.collection('renovation_items').get();
-      if (snapshot.docs.isNotEmpty) {
-        setState(() {
-          renovationItems = snapshot.docs.map((doc) {
-            final data = doc.data() as Map<String, dynamic>;
-            return {
-              'id': doc.id,
-              'title': data['title'] ?? '',
-              'desc': data['desc'] ?? '',
-              'price': data['price'] ?? 0,
-            };
-          }).toList();
-        });
-      }
+      setState(() {
+        renovationItems = snapshot.docs.map((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          return {
+            'id': doc.id,
+            'title': data['title'] ?? '',
+            'desc': data['desc'] ?? '',
+            'price': data['price'] ?? 0,
+          };
+        }).toList();
+      });
     } catch (e) {
-      // ignore error, use dummy data
+      renovationItems = [];
     } finally {
       setState(() => isLoading = false);
     }
   }
 
   int calculateTotal() {
-    return renovationItems.fold(0, (sum, item) {
+    return renovationItems
+        .where((item) => item['title']
+            .toString()
+            .toLowerCase()
+            .contains(searchQuery.toLowerCase()))
+        .fold(0, (sum, item) {
       final int price = (item['price'] ?? 0) is int
           ? (item['price'] ?? 0)
           : int.tryParse(item['price'].toString()) ?? 0;
       return sum + price;
     });
+  }
+
+  Future<void> _showAddSchoolDialog() async {
+    final _titleController = TextEditingController();
+    final _descController = TextEditingController();
+    final _priceController = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Tambah Sekolah'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _titleController,
+                decoration: const InputDecoration(labelText: 'Nama Sekolah'),
+              ),
+              TextField(
+                controller: _descController,
+                decoration: const InputDecoration(labelText: 'Deskripsi Renovasi'),
+              ),
+              TextField(
+                controller: _priceController,
+                decoration: const InputDecoration(labelText: 'Biaya (Rp)'),
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (_titleController.text.isEmpty ||
+                  _descController.text.isEmpty ||
+                  _priceController.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Semua field harus diisi!')),
+                );
+                return;
+              }
+              try {
+                final newItem = {
+                  'title': _titleController.text,
+                  'desc': _descController.text,
+                  'price': int.tryParse(_priceController.text) ?? 0,
+                };
+                await _firestore.collection('renovation_items').add(newItem);
+                setState(() {
+                  searchQuery = ''; // Reset pencarian agar data baru langsung muncul
+                });
+                await loadRenovationItems();
+                Navigator.pop(context);
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Gagal menambah data: $e')),
+                );
+              }
+            },
+            child: const Text('Tambah'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _kirimLaporan() async {
+    final filteredItems = renovationItems
+        .where((item) => item['title']
+            .toString()
+            .toLowerCase()
+            .contains(searchQuery.toLowerCase()))
+        .toList();
+
+    if (filteredItems.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tidak ada data sekolah yang akan dikirim!')),
+      );
+      return;
+    }
+
+    try {
+      final docRef = await _firestore.collection('laporan_renovasi').add({
+        'items': filteredItems,
+        'tanggal': DateTime.now(),
+        'status': 'Menunggu',
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Laporan berhasil dikirim!')),
+      );
+      // Navigasi ke detail laporan setelah kirim
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DetailPesananScreen(idPesanan: docRef.id),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Gagal mengirim laporan!')),
+      );
+    }
   }
 
   @override
@@ -159,6 +245,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               border: InputBorder.none,
                             ),
                             onChanged: (value) => setState(() => searchQuery = value),
+                            onSubmitted: (value) => setState(() => searchQuery = value),
                           ),
                         ),
                       ],
@@ -180,13 +267,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   child: IconButton(
                     icon: const Icon(Icons.filter_list, color: Colors.grey),
-                    onPressed: () {},
+                    onPressed: () {
+                      setState(() {
+                        // searchQuery sudah diisi dari TextField, filter otomatis
+                      });
+                    },
                   ),
                 ),
               ],
             ),
           ),
-          // Top buttons
+          // Top buttons + Tambah Sekolah
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             child: Row(
@@ -195,6 +286,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildTopButton('Pelaporan', Colors.blue.shade800),
                 _buildTopButton('Visualisasi', Colors.blue.shade700),
                 _buildTopButton('Feedback', Colors.blue.shade700),
+                ElevatedButton.icon(
+                  onPressed: _showAddSchoolDialog,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Tambah Sekolah'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue[700],
+                    foregroundColor: Colors.white,
+                  ),
+                ),
               ],
             ),
           ),
@@ -308,7 +408,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          onPressed: () {},
+                          onPressed: _kirimLaporan,
                           child: const Text(
                             'Kirim Laporan',
                             style: TextStyle(
@@ -359,7 +459,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 MaterialPageRoute(
                   builder: (context) => const MonitoringRenovasiScreen(
                     namaSekolah: "SMA Negeri 1 Padang",
-                    statusProyekAwal: "Belum Dimulai", // <-- UBAH INI!
+                    statusProyekAwal: "Belum Dimulai",
                     riwayatPerbaikan: [
                       "Pengecatan Dinding",
                       "Struk Pemesanan",
@@ -383,52 +483,46 @@ class _HomeScreenState extends State<HomeScreen> {
     return SizedBox(
       width: 100,
       child: ElevatedButton(
-        onPressed: () {
+        onPressed: () async {
           if (label == 'Pelaporan') {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DetailPesananScreen(
-                  namaSekolah: "SMA N 3 PAYAKUMBUH",
-                  idPesanan: "PRN-2025051701",
-                  status: "Disetujui",
-                  rincian: [
-                    {
-                      'title': 'Atap',
-                      'desc': 'Penggantian atap rusak\nMaterial: Genteng metal\nLuas area: 12m2',
-                      'price': 250000,
-                    },
-                    {
-                      'title': 'Cat Dinding',
-                      'desc': 'Penggantian ulang dinding rusak\nMaterial: Cat interior\nLuas area: 25m2',
-                      'price': 500000,
-                    },
-                    {
-                      'title': 'Lantai',
-                      'desc': 'Penggantian lantai keramik\nMaterial: Keramik 30x30\nLuas area: 12m2',
-                      'price': 800000,
-                    },
-                    {
-                      'title': 'Loteng',
-                      'desc': 'Penggantian loteng rusak\nMaterial: Loteng berbahan kayu\nLuas area: 54m2',
-                      'price': 250000,
-                    },
-                  ],
+            // Ambil laporan terbaru dari Firestore
+            final snapshot = await _firestore
+                .collection('laporan_renovasi')
+                .orderBy('tanggal', descending: true)
+                .limit(1)
+                .get();
+            if (snapshot.docs.isNotEmpty) {
+              final doc = snapshot.docs.first;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DetailPesananScreen(idPesanan: doc.id),
                 ),
-              ),
-            );
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Belum ada laporan renovasi!')),
+              );
+            }
           } else if (label == 'Visualisasi') {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const MonitoringRenovasiScreen(
                   namaSekolah: "SMA Negeri 1 Padang",
-                  statusProyekAwal: "Belum Dimulai", // <-- UBAH INI!
+                  statusProyekAwal: "Belum Dimulai",
                   riwayatPerbaikan: [
                     "Pengecatan Dinding",
                     "Struk Pemesanan",
                   ],
                 ),
+              ),
+            );
+          } else if (label == 'Feedback') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const UmpanBalikScreen(),
               ),
             );
           }

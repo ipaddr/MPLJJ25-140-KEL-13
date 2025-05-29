@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:edubuild/screens/admin_home_screen.dart';
 
 class ChatAdminScreen extends StatefulWidget {
   const ChatAdminScreen({super.key});
@@ -23,6 +24,16 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
       _messages.add({'text': text, 'isUser': true});
       _controller.clear();
     });
+
+    // Balasan otomatis dari admin
+    Future.delayed(const Duration(milliseconds: 600), () {
+      setState(() {
+        _messages.add({
+          'text': 'Terima kasih, pesan Anda sudah diterima oleh admin.',
+          'isUser': false,
+        });
+      });
+    });
   }
 
   @override
@@ -31,6 +42,15 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
       appBar: AppBar(
         title: const Text('Chat Admin'),
         backgroundColor: const Color(0xFF005792),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
+            );
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

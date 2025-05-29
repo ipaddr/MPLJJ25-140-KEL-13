@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'chat_admin.dart'; // Tambahkan import ini
+import 'chat_admin.dart';
+import 'home_screen.dart'; // Tambahkan import ini
 
 class ChatBotScreen extends StatefulWidget {
   const ChatBotScreen({super.key});
@@ -32,6 +33,21 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
       _messages.add({'text': text, 'isUser': true});
       _controller.clear();
     });
+
+    // Balasan otomatis
+    Future.delayed(const Duration(milliseconds: 500), () {
+      String reply;
+      if (text.toLowerCase().contains('laporan')) {
+        reply = 'Untuk melihat laporan renovasi, silahkan klik menu “Monitoring” kemudian pilih “Progress Renovasi” pada dashboard';
+      } else if (text.toLowerCase().contains('halo') || text.toLowerCase().contains('hai')) {
+        reply = 'Halo! Ada yang bisa kami bantu?';
+      } else {
+        reply = 'Terima kasih atas pesan Anda. Kami akan segera membalasnya atau silakan gunakan menu yang tersedia.';
+      }
+      setState(() {
+        _messages.add({'text': reply, 'isUser': false});
+      });
+    });
   }
 
   @override
@@ -42,6 +58,15 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
         title: const Text('ChatBot EduBuild'),
         backgroundColor: const Color(0xFF005792),
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
+            );
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
