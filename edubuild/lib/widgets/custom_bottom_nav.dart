@@ -3,7 +3,7 @@ import '../screens/home_screen.dart';
 import '../screens/monitoring_renovasi_screen.dart';
 import '../screens/umpan_balik_screen.dart';
 import '../screens/order_detail_screen.dart';
-import '../screens/chatbot.dart'; // Perhatikan: chatbot.dart, bukan chatbot_screen.dart
+import '../screens/chatbot.dart';
 
 class CustomBottomNav extends StatelessWidget {
   final int selectedIndex;
@@ -27,29 +27,6 @@ class CustomBottomNav extends StatelessWidget {
             style: TextStyle(fontSize: 12, color: Colors.grey),
           ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const OrderDetailScreen(),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.blue[800],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text('Export'),
-            ),
-          ],
-        ),
         BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           backgroundColor: const Color(0xFF005792),
@@ -70,24 +47,23 @@ class CustomBottomNav extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => MonitoringRenovasiScreen(
-                      namaSekolah: 'SMA Negeri 1 Padang',
-                      statusProyekAwal: 'Belum Dimulai',
-                      riwayatPerbaikan: const [
-                        'Penggantian Atap',
-                        'Cat Dinding',
-                        'Pemasangan Keramik',
-                      ],
-                    ),
+                    builder:
+                        (context) => MonitoringRenovasiScreen(
+                          namaSekolah: 'SMA Negeri 1 Padang',
+                          statusProyekAwal: 'Belum Dimulai',
+                          riwayatPerbaikan: const [
+                            'Penggantian Atap',
+                            'Cat Dinding',
+                            'Pemasangan Keramik',
+                          ],
+                        ),
                   ),
                 );
                 break;
               case 2:
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => UmpanBalikScreen(),
-                  ),
+                  MaterialPageRoute(builder: (context) => UmpanBalikScreen()),
                 );
                 break;
               case 3:

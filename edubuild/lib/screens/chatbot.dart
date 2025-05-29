@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 import 'chat_admin.dart';
 import 'home_screen.dart'; // Tambahkan import ini
 
@@ -12,42 +13,63 @@ class ChatBotScreen extends StatefulWidget {
 class _ChatBotScreenState extends State<ChatBotScreen> {
   final TextEditingController _controller = TextEditingController();
   final List<Map<String, dynamic>> _messages = [
-    {
-      'text': 'Selamat datang di EduBuild!',
-      'isUser': false,
-    },
-    {
-      'text': 'Bagaimana cara melihat laporan renovasi',
-      'isUser': true,
-    },
-    {
-      'text': 'Untuk melihat laporan renovasi, silahkan klik menu “Monitoring” kemudian pilih “Progress Renovasi” pada dashboard',
-      'isUser': false,
-    },
+    {'text': 'Selamat datang di EduBuild!', 'isUser': false},
   ];
 
-  void _sendMessage() {
+  // Initialize Gemini
+  final model = GenerativeModel(
+    model: 'gemini-2.0-flash',
+    apiKey:
+        'AIzaSyDQZLwrYTxwBPQJPqH3MbOoUZibxVomzOo', // Replace with your actual API key
+  );
+  late ChatSession chat;
+
+  @override
+  void initState() {
+    super.initState();
+    chat = model.startChat();
+  }
+
+  Future<void> _sendMessage() async {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
+
     setState(() {
       _messages.add({'text': text, 'isUser': true});
       _controller.clear();
     });
 
-    // Balasan otomatis
-    Future.delayed(const Duration(milliseconds: 500), () {
-      String reply;
-      if (text.toLowerCase().contains('laporan')) {
-        reply = 'Untuk melihat laporan renovasi, silahkan klik menu “Monitoring” kemudian pilih “Progress Renovasi” pada dashboard';
-      } else if (text.toLowerCase().contains('halo') || text.toLowerCase().contains('hai')) {
-        reply = 'Halo! Ada yang bisa kami bantu?';
-      } else {
-        reply = 'Terima kasih atas pesan Anda. Kami akan segera membalasnya atau silakan gunakan menu yang tersedia.';
-      }
+    try {
+      // Show loading indicator
       setState(() {
-        _messages.add({'text': reply, 'isUser': false});
+        _messages.add({
+          'text': 'Sedang mengetik...',
+          'isUser': false,
+          'isLoading': true,
+        });
       });
-    });
+
+      // Get response from Gemini
+      final response = await chat.sendMessage(Content.text(text));
+      final responseText = response.text;
+
+      // Remove loading indicator and add actual response
+      setState(() {
+        _messages.removeLast();
+        _messages.add({
+          'text': responseText ?? 'Maaf, terjadi kesalahan',
+          'isUser': false,
+        });
+      });
+    } catch (e) {
+      setState(() {
+        _messages.removeLast();
+        _messages.add({
+          'text': 'Maaf, terjadi kesalahan dalam memproses pesan Anda',
+          'isUser': false,
+        });
+      });
+    }
   }
 
   @override
@@ -81,7 +103,11 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
               ),
               child: const Text(
                 'ChatBot EduBuild',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -92,16 +118,18 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                 itemBuilder: (context, index) {
                   final msg = _messages[index];
                   return Align(
-                    alignment: msg['isUser']
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
+                    alignment:
+                        msg['isUser']
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
                     child: Container(
                       margin: const EdgeInsets.symmetric(vertical: 4),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: msg['isUser']
-                            ? const Color(0xFF005792)
-                            : Colors.blue[50],
+                        color:
+                            msg['isUser']
+                                ? const Color(0xFF005792)
+                                : Colors.blue[50],
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -126,7 +154,10 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                     ),
                     onSubmitted: (_) => _sendMessage(),
                   ),
