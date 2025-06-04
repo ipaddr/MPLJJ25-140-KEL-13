@@ -4,7 +4,7 @@ import '../screens/home_screen.dart';
 import '../screens/monitoring_renovasi_screen.dart';
 import '../screens/umpan_balik_screen.dart';
 import '../screens/order_detail_screen.dart';
-import '../screens/chatbot.dart'; // Perhatikan: chatbot.dart, bukan chatbot_screen.dart
+import '../screens/chatbot.dart';
 
 class CustomBottomNav extends StatelessWidget {
   final int selectedIndex;
@@ -99,9 +99,7 @@ class CustomBottomNav extends StatelessWidget {
               case 2:
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => UmpanBalikScreen(),
-                  ),
+                  MaterialPageRoute(builder: (context) => UmpanBalikScreen()),
                 );
                 break;
               case 3:
