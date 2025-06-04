@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../screens/home_screen.dart';
 import '../screens/monitoring_renovasi_screen.dart';
 import '../screens/umpan_balik_screen.dart';
@@ -31,13 +32,26 @@ class CustomBottomNav extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const OrderDetailScreen(),
-                  ),
-                );
+              onPressed: () async {
+                // Ambil dokumen terbaru dari Firestore
+                final snapshot = await FirebaseFirestore.instance
+                    .collection('laporan_renovasi')
+                    .orderBy('tanggal', descending: true)
+                    .limit(1)
+                    .get();
+                if (snapshot.docs.isNotEmpty) {
+                  final idPesanan = snapshot.docs.first.id;
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => OrderDetailScreen(idPesanan: idPesanan),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Tidak ada data untuk diexport!')),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,

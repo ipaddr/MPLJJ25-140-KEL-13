@@ -81,11 +81,14 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               final items = laporan['items'] as List<dynamic>? ?? [];
               final sekolah = items.isNotEmpty ? items[0]['title'] ?? '-' : '-';
               final status = laporan['status'] ?? 'Menunggu';
+              final idPesanan = laporanList[index].id; // Ambil ID dokumen Firestore
               return GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const OrderDetailScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => OrderDetailScreen(idPesanan: idPesanan),
+                    ),
                   );
                 },
                 child: Container(

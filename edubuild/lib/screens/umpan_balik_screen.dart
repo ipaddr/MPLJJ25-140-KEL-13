@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../widgets/mobile_wrapper.dart';
 import '../widgets/custom_bottom_nav.dart';
 import 'home_screen.dart';
@@ -35,6 +36,36 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
   void dispose() {
     commentController.dispose();
     super.dispose();
+  }
+
+  Future<void> _submitFeedback() async {
+    if (rating > 0 && selectedDate != null && commentController.text.isNotEmpty) {
+      try {
+        await FirebaseFirestore.instance.collection('feedback').add({
+          'namaSekolah': 'SMA Negeri 1 Padang',
+          'tanggal': Timestamp.fromDate(selectedDate!),
+          'rating': rating,
+          'komentar': commentController.text,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Umpan balik berhasil dikirim')),
+        );
+        setState(() {
+          rating = 0;
+          selectedDate = null;
+          commentController.clear();
+        });
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal mengirim umpan balik: $e')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Mohon lengkapi semua data umpan balik!')),
+      );
+    }
   }
 
   @override
@@ -135,15 +166,7 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
                         backgroundColor: const Color(0xFF01497C),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                      onPressed: () {
-                        // Implement feedback submission logic
-                        if (rating > 0 && selectedDate != null && commentController.text.isNotEmpty) {
-                          // Handle feedback submission
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Umpan balik berhasil dikirim')),
-                          );
-                        }
-                      },
+                      onPressed: _submitFeedback,
                       child: const Text('Kirim'),
                     ),
                   )

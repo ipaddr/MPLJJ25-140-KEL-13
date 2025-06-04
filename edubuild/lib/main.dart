@@ -13,7 +13,7 @@ import 'package:edubuild/widgets/mobile_wrapper.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform, // WAJIB untuk web!
+    options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(const MyApp());
 }
@@ -48,6 +48,25 @@ class MyApp extends StatelessWidget {
           );
         }
 
+        // Route dinamis untuk orderDetail
+        if (settings.name == '/orderDetail') {
+          final args = settings.arguments as Map<String, dynamic>?;
+          if (args == null || args['idPesanan'] == null) {
+            return MaterialPageRoute(
+              builder: (context) => const Scaffold(
+                body: Center(child: Text('Data pesanan tidak ditemukan')),
+              ),
+            );
+          }
+          return MaterialPageRoute(
+            builder: (context) => MobileWrapper(
+              child: OrderDetailScreen(
+                idPesanan: args['idPesanan'],
+              ),
+            ),
+          );
+        }
+
         // Route standar
         final routes = <String, WidgetBuilder>{
           '/home': (context) => const MobileWrapper(child: HomeScreen()),
@@ -67,9 +86,6 @@ class MyApp extends StatelessWidget {
               ),
           '/adminHome': (context) => const MobileWrapper(
                 child: AdminHomeScreen(),
-              ),
-          '/orderDetail': (context) => const MobileWrapper(
-                child: OrderDetailScreen(),
               ),
         };
 
