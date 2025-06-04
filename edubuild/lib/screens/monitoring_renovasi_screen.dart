@@ -4,6 +4,7 @@ import '../widgets/mobile_wrapper.dart';
 import '../widgets/custom_bottom_nav.dart';
 import 'umpan_balik_screen.dart';
 import 'home_screen.dart';
+import 'chatbot.dart';
 
 class MonitoringRenovasiScreen extends StatefulWidget {
   final String namaSekolah;
@@ -23,7 +24,7 @@ class MonitoringRenovasiScreen extends StatefulWidget {
 }
 
 class _MonitoringRenovasiScreenState extends State<MonitoringRenovasiScreen> {
-  final int _selectedIndex = 1; // Tab Monitoring
+  int _selectedIndex = 1; // Tab Monitoring
   late String statusProyek;
   late List<String> riwayatPerbaikan;
   bool isLoading = true;
@@ -227,15 +228,25 @@ class _MonitoringRenovasiScreenState extends State<MonitoringRenovasiScreen> {
       bottomNavigationBar: CustomBottomNav(
         selectedIndex: _selectedIndex,
         onIndexChanged: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
           if (index == 0) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const HomeScreen()),
             );
+          } else if (index == 1) {
+            // Sudah di Monitoring, tidak perlu navigasi
           } else if (index == 2) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => UmpanBalikScreen()),
+              MaterialPageRoute(builder: (context) => const UmpanBalikScreen()),
+            );
+          } else if (index == 3) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const ChatBotScreen()),
             );
           }
         },

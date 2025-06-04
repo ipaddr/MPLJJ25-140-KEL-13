@@ -4,6 +4,7 @@ import '../widgets/mobile_wrapper.dart';
 import '../widgets/custom_bottom_nav.dart';
 import 'home_screen.dart';
 import 'monitoring_renovasi_screen.dart';
+import 'chatbot.dart';
 
 class UmpanBalikScreen extends StatefulWidget {
   const UmpanBalikScreen({super.key});
@@ -190,6 +191,34 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
             setState(() {
               _selectedIndex = index;
             });
+            if (index == 0) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const HomeScreen()),
+              );
+            } else if (index == 1) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MonitoringRenovasiScreen(
+                    namaSekolah: 'SMA Negeri 1 Padang',
+                    statusProyekAwal: 'Belum Dimulai',
+                    riwayatPerbaikan: const [
+                      'Penggantian Atap',
+                      'Cat Dinding',
+                      'Pemasangan Keramik',
+                    ],
+                  ),
+                ),
+              );
+            } else if (index == 2) {
+              // Sudah di Umpan Balik, tidak perlu navigasi
+            } else if (index == 3) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const ChatBotScreen()),
+              );
+            }
           },
         ),
       ),

@@ -453,27 +453,34 @@ class _HomeScreenState extends State<HomeScreen> {
         onIndexChanged: (index) {
           setState(() {
             _selectedIndex = index;
-            if (index == 1) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MonitoringRenovasiScreen(
-                    namaSekolah: "SMA Negeri 1 Padang",
-                    statusProyekAwal: "Belum Dimulai",
-                    riwayatPerbaikan: [
-                      "Pengecatan Dinding",
-                      "Struk Pemesanan",
-                    ],
-                  ),
-                ),
-              );
-            } else if (index == 2) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const UmpanBalikScreen()),
-              );
-            }
           });
+          if (index == 0) {
+            // Sudah di Home, tidak perlu navigasi
+          } else if (index == 1) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const MonitoringRenovasiScreen(
+                  namaSekolah: "SMA Negeri 1 Padang",
+                  statusProyekAwal: "Belum Dimulai",
+                  riwayatPerbaikan: [
+                    "Pengecatan Dinding",
+                    "Struk Pemesanan",
+                  ],
+                ),
+              ),
+            );
+          } else if (index == 2) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const UmpanBalikScreen()),
+            );
+          } else if (index == 3) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const ChatBotScreen()),
+            );
+          }
         },
       ),
     );
