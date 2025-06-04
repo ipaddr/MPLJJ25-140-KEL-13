@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../screens/admin_home_screen.dart';
 import '../screens/dashboard.dart';
 import '../screens/feedback.dart';
-import '../screens/chatbot.dart';
+import '../screens/chat_admin.dart';
 
 class AdminBottomNav extends StatefulWidget {
   const AdminBottomNav({Key? key}) : super(key: key);
@@ -18,7 +18,7 @@ class _AdminBottomNavState extends State<AdminBottomNav> {
     const AdminHomeScreen(),
     const DashboardPage(),
     const FeedbackPage(),
-    const ChatBotScreen(), // Ganti ke ChatBotScreen
+    const ChatAdminScreen(), // Ganti ke ChatBotScreen
   ];
 
   void _onItemTapped(int index) {
@@ -61,10 +61,7 @@ class _AdminBottomNavState extends State<AdminBottomNav> {
             icon: Icon(Icons.edit_note),
             label: 'Feedback',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: 'Chat Bot',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat Bot'),
         ],
       ),
     );

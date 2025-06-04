@@ -11,10 +11,7 @@ class ChatAdminScreen extends StatefulWidget {
 class _ChatAdminScreenState extends State<ChatAdminScreen> {
   final TextEditingController _controller = TextEditingController();
   final List<Map<String, dynamic>> _messages = [
-    {
-      'text': 'Halo, ada yang bisa kami bantu?',
-      'isUser': false,
-    },
+    {'text': 'Halo, ada yang bisa kami bantu?', 'isUser': false},
   ];
 
   void _sendMessage() {
@@ -62,16 +59,18 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
                 itemBuilder: (context, index) {
                   final msg = _messages[index];
                   return Align(
-                    alignment: msg['isUser']
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
+                    alignment:
+                        msg['isUser']
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
                     child: Container(
                       margin: const EdgeInsets.symmetric(vertical: 4),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: msg['isUser']
-                            ? const Color(0xFF005792)
-                            : Colors.blue[50],
+                        color:
+                            msg['isUser']
+                                ? const Color(0xFF005792)
+                                : Colors.blue[50],
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -96,7 +95,10 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                     ),
                     onSubmitted: (_) => _sendMessage(),
                   ),
