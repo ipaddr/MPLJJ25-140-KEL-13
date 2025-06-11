@@ -116,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 };
                 await _firestore.collection('renovation_items').add(newItem);
                 setState(() {
-                  searchQuery = ''; // Reset pencarian agar data baru langsung muncul
+                  searchQuery = '';
                 });
                 await loadRenovationItems();
                 Navigator.pop(context);
@@ -157,7 +157,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Laporan berhasil dikirim!')),
       );
-      // Navigasi ke detail laporan setelah kirim
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -169,6 +168,51 @@ class _HomeScreenState extends State<HomeScreen> {
         const SnackBar(content: Text('Gagal mengirim laporan!')),
       );
     }
+  }
+
+  Widget _buildStatBox(String value, String label, List<Color> gradientColors) {
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 6),
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            colors: gradientColors,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: gradientColors.last.withOpacity(0.15),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              value,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 28,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -193,8 +237,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.menu, color: Colors.blue, size: 28),
-                const SizedBox(width: 12),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
@@ -213,6 +255,66 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ],
+            ),
+          ),
+          // Statistik Bar (REAL-TIME)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _firestore.collection('laporan_renovasi').snapshots(),
+              builder: (context, snapshot) {
+                int totalProyek = 0;
+                int totalAnggaran = 0;
+                int totalProgress = 0;
+                if (snapshot.hasData) {
+                  final docs = snapshot.data!.docs;
+                  totalProyek = docs.length;
+                  int progressSum = 0;
+                  int progressCount = 0;
+                  for (var doc in docs) {
+                    final data = doc.data() as Map<String, dynamic>;
+                    final items = data['items'] as List<dynamic>? ?? [];
+                    for (var item in items) {
+                      final price = item['price'] ?? 0;
+                      totalAnggaran += (price is int)
+                          ? price
+                          : int.tryParse(price.toString()) ?? 0;
+                    }
+                    if (data.containsKey('progress')) {
+                      final prog = data['progress'];
+                      if (prog is int) {
+                        progressSum += prog;
+                        progressCount++;
+                      } else if (prog is double) {
+                        progressSum += prog.round();
+                        progressCount++;
+                      }
+                    }
+                  }
+                  totalProgress = progressCount > 0
+                      ? (progressSum ~/ progressCount)
+                      : 75;
+                }
+                return Row(
+                  children: [
+                    _buildStatBox(
+                      '$totalProyek',
+                      'Total Proyek',
+                      [Color(0xFF36D1C4), Color(0xFF1E69DE)],
+                    ),
+                    _buildStatBox(
+                      'Rp ${totalAnggaran >= 1000000 ? (totalAnggaran / 1000000).toStringAsFixed(1) + "JT" : totalAnggaran.toString()}',
+                      'Total Anggaran',
+                      [Color(0xFFFFB347), Color(0xFFFF5E62)],
+                    ),
+                    _buildStatBox(
+                      '$totalProgress%',
+                      'Progress',
+                      [Color(0xFFB06AB3), Color(0xFF4568DC)],
+                    ),
+                  ],
+                );
+              },
             ),
           ),
           // Search bar
@@ -250,28 +352,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.shade200,
-                        blurRadius: 2,
-                        offset: const Offset(0, 1),
-                      ),
-                    ],
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.filter_list, color: Colors.grey),
-                    onPressed: () {
-                      setState(() {
-                        // searchQuery sudah diisi dari TextField, filter otomatis
-                      });
-                    },
                   ),
                 ),
               ],
@@ -492,7 +572,6 @@ class _HomeScreenState extends State<HomeScreen> {
       child: ElevatedButton(
         onPressed: () async {
           if (label == 'Pelaporan') {
-            // Ambil laporan terbaru dari Firestore
             final snapshot = await _firestore
                 .collection('laporan_renovasi')
                 .orderBy('tanggal', descending: true)
