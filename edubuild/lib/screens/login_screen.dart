@@ -76,19 +76,26 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 32),
-                const Icon(Icons.school, size: 64, color: Colors.deepPurple),
+                const Icon(
+                  Icons.school,
+                  size: 64,
+                  color: Color.fromARGB(255, 2, 52, 145),
+                ),
                 const SizedBox(height: 16),
                 const Text(
                   'EduBuild',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple,
+                    color: Color.fromARGB(255, 2, 52, 145),
                   ),
                 ),
                 const SizedBox(height: 32),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 8,
+                  ),
                   child: TextField(
                     controller: usernameController,
                     decoration: const InputDecoration(
@@ -98,7 +105,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 8,
+                  ),
                   child: TextField(
                     controller: passwordController,
                     obscureText: true,
@@ -117,21 +127,27 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 16,
+                  ),
                   child: SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepPurple,
+                        backgroundColor: const Color.fromARGB(255, 0, 54, 155),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                       onPressed: isLoading ? null : signIn,
-                      child: isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
-                              'Log In',
-                              style: TextStyle(fontSize: 16),
-                            ),
+                      child:
+                          isLoading
+                              ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                              : const Text(
+                                'Log In',
+                                style: TextStyle(fontSize: 16),
+                              ),
                     ),
                   ),
                 ),

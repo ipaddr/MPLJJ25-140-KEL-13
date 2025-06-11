@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'chat_admin.dart';
-import 'home_screen.dart'; // Tambahkan import ini
+import 'home_screen.dart';
+import 'admin_home_screen.dart'; // Tambahkan import ini
 
 class ChatBotScreen extends StatefulWidget {
   const ChatBotScreen({super.key});
@@ -85,7 +86,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const HomeScreen()),
+              MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
             );
           },
         ),
