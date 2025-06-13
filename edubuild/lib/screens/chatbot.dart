@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'chat_admin.dart';
-import 'home_screen.dart';
 import 'admin_home_screen.dart'; // Tambahkan import ini
 
 class ChatBotScreen extends StatefulWidget {

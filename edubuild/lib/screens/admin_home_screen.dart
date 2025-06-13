@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:edubuild/screens/order_detail_screen.dart';
 import 'package:edubuild/screens/login_screen.dart';
-import 'package:edubuild/widgets/custom_bottom_nav.dart';
-import 'home_screen.dart';
+import 'package:edubuild/widgets/admin_bottom_nav.dart';
 import 'monitoring_renovasi_screen.dart';
 import 'umpan_balik_screen.dart';
 import 'chatbot.dart';
@@ -125,42 +124,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           );
         },
       ),
-      bottomNavigationBar: CustomBottomNav(
-        selectedIndex: _selectedIndex,
-        onIndexChanged: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-          if (index == 0) {
-            // Sudah di halaman admin home
-          } else if (index == 1) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MonitoringRenovasiScreen(
-                  namaSekolah: 'SMA Negeri 1 Padang',
-                  statusProyekAwal: 'Belum Dimulai',
-                  riwayatPerbaikan: const [
-                    'Penggantian Atap',
-                    'Cat Dinding',
-                    'Pemasangan Keramik',
-                  ],
-                ),
-              ),
-            );
-          } else if (index == 2) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const UmpanBalikScreen()),
-            );
-          } else if (index == 3) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const ChatBotScreen()),
-            );
-          }
-        },
-      ),
+       bottomNavigationBar: AdminBottomNav(),
     );
   }
 }
