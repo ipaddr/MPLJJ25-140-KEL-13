@@ -37,7 +37,7 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat Admin'),
+        title: const Text('Chat User'),
         backgroundColor: const Color(0xFF005792),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),

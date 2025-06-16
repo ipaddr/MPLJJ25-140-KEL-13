@@ -6,6 +6,8 @@ import 'monitoring_renovasi_screen.dart';
 import 'umpan_balik_screen.dart';
 import 'detail_pesanan_screen.dart';
 import 'chatbot.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,11 +17,28 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  File? _image;
+  final ImagePicker _picker = ImagePicker();
   int _selectedIndex = 0;
   bool isLoading = true;
   String searchQuery = '';
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<Map<String, dynamic>> renovationItems = [];
+
+  Future<void> _pickImage() async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery,
+      );
+      if (pickedFile != null) {
+        setState(() {
+          _image = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+    }
+  }
 
   @override
   void initState() {
@@ -30,17 +49,19 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> loadRenovationItems() async {
     setState(() => isLoading = true);
     try {
-      final QuerySnapshot snapshot = await _firestore.collection('renovation_items').get();
+      final QuerySnapshot snapshot =
+          await _firestore.collection('renovation_items').get();
       setState(() {
-        renovationItems = snapshot.docs.map((doc) {
-          final data = doc.data() as Map<String, dynamic>;
-          return {
-            'id': doc.id,
-            'title': data['title'] ?? '',
-            'desc': data['desc'] ?? '',
-            'price': data['price'] ?? 0,
-          };
-        }).toList();
+        renovationItems =
+            snapshot.docs.map((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+              return {
+                'id': doc.id,
+                'title': data['title'] ?? '',
+                'desc': data['desc'] ?? '',
+                'price': data['price'] ?? 0,
+              };
+            }).toList();
       });
     } catch (e) {
       renovationItems = [];
@@ -51,16 +72,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   int calculateTotal() {
     return renovationItems
-        .where((item) => item['title']
-            .toString()
-            .toLowerCase()
-            .contains(searchQuery.toLowerCase()))
+        .where(
+          (item) => item['title'].toString().toLowerCase().contains(
+            searchQuery.toLowerCase(),
+          ),
+        )
         .fold(0, (sum, item) {
-      final int price = (item['price'] ?? 0) is int
-          ? (item['price'] ?? 0)
-          : int.tryParse(item['price'].toString()) ?? 0;
-      return sum + price;
-    });
+          final int price =
+              (item['price'] ?? 0) is int
+                  ? (item['price'] ?? 0)
+                  : int.tryParse(item['price'].toString()) ?? 0;
+          return sum + price;
+        });
   }
 
   Future<void> _showAddSchoolDialog() async {
@@ -70,80 +93,91 @@ class _HomeScreenState extends State<HomeScreen> {
 
     await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Tambah Sekolah'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Nama Sekolah'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Tambah Sekolah'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: _titleController,
+                    decoration: const InputDecoration(
+                      labelText: 'Nama Sekolah',
+                    ),
+                  ),
+                  TextField(
+                    controller: _descController,
+                    decoration: const InputDecoration(
+                      labelText: 'Deskripsi Renovasi',
+                    ),
+                  ),
+                  TextField(
+                    controller: _priceController,
+                    decoration: const InputDecoration(labelText: 'Biaya (Rp)'),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  ),
+                ],
               ),
-              TextField(
-                controller: _descController,
-                decoration: const InputDecoration(labelText: 'Deskripsi Renovasi'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Batal'),
               ),
-              TextField(
-                controller: _priceController,
-                decoration: const InputDecoration(labelText: 'Biaya (Rp)'),
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              ElevatedButton(
+                onPressed: () async {
+                  if (_titleController.text.isEmpty ||
+                      _descController.text.isEmpty ||
+                      _priceController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Semua field harus diisi!')),
+                    );
+                    return;
+                  }
+                  try {
+                    final newItem = {
+                      'title': _titleController.text,
+                      'desc': _descController.text,
+                      'price': int.tryParse(_priceController.text) ?? 0,
+                    };
+                    await _firestore
+                        .collection('renovation_items')
+                        .add(newItem);
+                    setState(() {
+                      searchQuery = '';
+                    });
+                    await loadRenovationItems();
+                    Navigator.pop(context);
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Gagal menambah data: $e')),
+                    );
+                  }
+                },
+                child: const Text('Tambah'),
               ),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (_titleController.text.isEmpty ||
-                  _descController.text.isEmpty ||
-                  _priceController.text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Semua field harus diisi!')),
-                );
-                return;
-              }
-              try {
-                final newItem = {
-                  'title': _titleController.text,
-                  'desc': _descController.text,
-                  'price': int.tryParse(_priceController.text) ?? 0,
-                };
-                await _firestore.collection('renovation_items').add(newItem);
-                setState(() {
-                  searchQuery = '';
-                });
-                await loadRenovationItems();
-                Navigator.pop(context);
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Gagal menambah data: $e')),
-                );
-              }
-            },
-            child: const Text('Tambah'),
-          ),
-        ],
-      ),
     );
   }
 
   Future<void> _kirimLaporan() async {
-    final filteredItems = renovationItems
-        .where((item) => item['title']
-            .toString()
-            .toLowerCase()
-            .contains(searchQuery.toLowerCase()))
-        .toList();
+    final filteredItems =
+        renovationItems
+            .where(
+              (item) => item['title'].toString().toLowerCase().contains(
+                searchQuery.toLowerCase(),
+              ),
+            )
+            .toList();
 
     if (filteredItems.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tidak ada data sekolah yang akan dikirim!')),
+        const SnackBar(
+          content: Text('Tidak ada data sekolah yang akan dikirim!'),
+        ),
       );
       return;
     }
@@ -153,6 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
         'items': filteredItems,
         'tanggal': DateTime.now(),
         'status': 'Menunggu',
+        'buktiImage': _image?.path, // Include image path if available
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Laporan berhasil dikirim!')),
@@ -164,9 +199,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Gagal mengirim laporan!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Gagal mengirim laporan!')));
     }
   }
 
@@ -204,10 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 6),
             Text(
               label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-              ),
+              style: const TextStyle(color: Colors.white, fontSize: 15),
             ),
           ],
         ),
@@ -276,9 +308,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     final items = data['items'] as List<dynamic>? ?? [];
                     for (var item in items) {
                       final price = item['price'] ?? 0;
-                      totalAnggaran += (price is int)
-                          ? price
-                          : int.tryParse(price.toString()) ?? 0;
+                      totalAnggaran +=
+                          (price is int)
+                              ? price
+                              : int.tryParse(price.toString()) ?? 0;
                     }
                     if (data.containsKey('progress')) {
                       final prog = data['progress'];
@@ -291,27 +324,24 @@ class _HomeScreenState extends State<HomeScreen> {
                       }
                     }
                   }
-                  totalProgress = progressCount > 0
-                      ? (progressSum ~/ progressCount)
-                      : 75;
+                  totalProgress =
+                      progressCount > 0 ? (progressSum ~/ progressCount) : 75;
                 }
                 return Row(
                   children: [
-                    _buildStatBox(
-                      '$totalProyek',
-                      'Total Proyek',
-                      [Color(0xFF36D1C4), Color(0xFF1E69DE)],
-                    ),
+                    _buildStatBox('$totalProyek', 'Total Proyek', [
+                      Color(0xFF36D1C4),
+                      Color(0xFF1E69DE),
+                    ]),
                     _buildStatBox(
                       'Rp ${totalAnggaran >= 1000000 ? (totalAnggaran / 1000000).toStringAsFixed(1) + "JT" : totalAnggaran.toString()}',
                       'Total Anggaran',
                       [Color(0xFFFFB347), Color(0xFFFF5E62)],
                     ),
-                    _buildStatBox(
-                      '$totalProgress%',
-                      'Progress',
-                      [Color(0xFFB06AB3), Color(0xFF4568DC)],
-                    ),
+                    _buildStatBox('$totalProgress%', 'Progress', [
+                      Color(0xFFB06AB3),
+                      Color(0xFF4568DC),
+                    ]),
                   ],
                 );
               },
@@ -346,8 +376,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               hintText: 'Search School',
                               border: InputBorder.none,
                             ),
-                            onChanged: (value) => setState(() => searchQuery = value),
-                            onSubmitted: (value) => setState(() => searchQuery = value),
+                            onChanged:
+                                (value) => setState(() => searchQuery = value),
+                            onSubmitted:
+                                (value) => setState(() => searchQuery = value),
                           ),
                         ),
                       ],
@@ -383,7 +415,10 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -414,14 +449,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         )
                       else
                         ...renovationItems
-                            .where((item) => item['title']
-                                .toString()
-                                .toLowerCase()
-                                .contains(searchQuery.toLowerCase()))
+                            .where(
+                              (item) => item['title']
+                                  .toString()
+                                  .toLowerCase()
+                                  .contains(searchQuery.toLowerCase()),
+                            )
                             .map((item) {
-                              final int price = (item['price'] ?? 0) is int
-                                  ? (item['price'] ?? 0)
-                                  : int.tryParse(item['price'].toString()) ?? 0;
+                              final int price =
+                                  (item['price'] ?? 0) is int
+                                      ? (item['price'] ?? 0)
+                                      : int.tryParse(
+                                            item['price'].toString(),
+                                          ) ??
+                                          0;
                               return Container(
                                 margin: const EdgeInsets.symmetric(vertical: 4),
                                 padding: const EdgeInsets.all(12),
@@ -430,51 +471,90 @@ class _HomeScreenState extends State<HomeScreen> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             item['title'] ?? '',
                                             style: const TextStyle(
-                                                fontWeight: FontWeight.bold),
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
-                                          Text(item['desc'] ?? '',
-                                              style: const TextStyle(fontSize: 12)),
+                                          Text(
+                                            item['desc'] ?? '',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),
                                     Text(
                                       'Rp ${price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
                                       style: const TextStyle(
-                                          fontWeight: FontWeight.bold),
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ],
                                 ),
                               );
                             }),
                       const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              'Total = Rp ${calculateTotal().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
+                      // NEW: Integrated Total and Upload Section
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Total: Rp${calculateTotal().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
                               style: const TextStyle(
-                                color: Colors.blue,
+                                fontSize: 18,
                                 fontWeight: FontWeight.bold,
+                                color: Colors.blue,
                               ),
                             ),
-                          ),
-                        ],
+                            Row(
+                              children: [
+                                if (_image != null)
+                                  Container(
+                                    height: 50,
+                                    width: 50,
+                                    margin: const EdgeInsets.only(right: 10),
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: FileImage(_image!),
+                                        fit: BoxFit.cover,
+                                      ),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ElevatedButton.icon(
+                                  onPressed: _pickImage,
+                                  icon: const Icon(Icons.upload_file),
+                                  label: const Text('Upload Foto'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 16),
                       SizedBox(
@@ -540,14 +620,15 @@ class _HomeScreenState extends State<HomeScreen> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => const MonitoringRenovasiScreen(
-                  namaSekolah: "SMA Negeri 1 Padang",
-                  statusProyekAwal: "Belum Dimulai",
-                  riwayatPerbaikan: [
-                    "Pengecatan Dinding",
-                    "Struk Pemesanan",
-                  ],
-                ),
+                builder:
+                    (context) => const MonitoringRenovasiScreen(
+                      namaSekolah: "SMA Negeri 1 Padang",
+                      statusProyekAwal: "Belum Dimulai",
+                      riwayatPerbaikan: [
+                        "Pengecatan Dinding",
+                        "Struk Pemesanan",
+                      ],
+                    ),
               ),
             );
           } else if (index == 2) {
@@ -572,11 +653,12 @@ class _HomeScreenState extends State<HomeScreen> {
       child: ElevatedButton(
         onPressed: () async {
           if (label == 'Pelaporan') {
-            final snapshot = await _firestore
-                .collection('laporan_renovasi')
-                .orderBy('tanggal', descending: true)
-                .limit(1)
-                .get();
+            final snapshot =
+                await _firestore
+                    .collection('laporan_renovasi')
+                    .orderBy('tanggal', descending: true)
+                    .limit(1)
+                    .get();
             if (snapshot.docs.isNotEmpty) {
               final doc = snapshot.docs.first;
               Navigator.push(
@@ -594,22 +676,21 @@ class _HomeScreenState extends State<HomeScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const MonitoringRenovasiScreen(
-                  namaSekolah: "SMA Negeri 1 Padang",
-                  statusProyekAwal: "Belum Dimulai",
-                  riwayatPerbaikan: [
-                    "Pengecatan Dinding",
-                    "Struk Pemesanan",
-                  ],
-                ),
+                builder:
+                    (context) => const MonitoringRenovasiScreen(
+                      namaSekolah: "SMA Negeri 1 Padang",
+                      statusProyekAwal: "Belum Dimulai",
+                      riwayatPerbaikan: [
+                        "Pengecatan Dinding",
+                        "Struk Pemesanan",
+                      ],
+                    ),
               ),
             );
           } else if (label == 'Feedback') {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const UmpanBalikScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => const UmpanBalikScreen()),
             );
           }
         },
@@ -623,10 +704,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: Text(
           label,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, color: color),
         ),
       ),
     );

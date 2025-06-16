@@ -40,10 +40,12 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
   }
 
   Future<void> _submitFeedback() async {
-    if (rating > 0 && selectedDate != null && commentController.text.isNotEmpty) {
+    if (rating > 0 &&
+        selectedDate != null &&
+        commentController.text.isNotEmpty) {
       try {
         await FirebaseFirestore.instance.collection('feedback').add({
-          'namaSekolah': 'SMA Negeri 1 Padang',
+          'namaSekolah': 'SMA N X XXXXX',
           'tanggal': Timestamp.fromDate(selectedDate!),
           'rating': rating,
           'komentar': commentController.text,
@@ -75,10 +77,7 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
       backgroundColor: const Color(0xFF01497C),
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text(
-          'Umpan Balik',
-          style: TextStyle(color: Colors.black),
-        ),
+        title: const Text('Umpan Balik', style: TextStyle(color: Colors.black)),
         leading: const BackButton(color: Colors.black),
         elevation: 0,
       ),
@@ -89,11 +88,15 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
           children: [
             const Text(
               'Beri Penilaian Renovasi',
-              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 8),
             const Text(
-              'SMA Negeri 1 Padang\nJl. Belanti Raya, Lolong Belanti',
+              'SMA N X XXXXX',
               style: TextStyle(color: Colors.white, fontSize: 16),
             ),
             const SizedBox(height: 16),
@@ -106,7 +109,10 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Status', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Status',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   Row(
                     children: List.generate(5, (index) {
@@ -124,12 +130,18 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
                     }),
                   ),
                   const SizedBox(height: 12),
-                  const Text('Tanggal', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Tanggal',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   GestureDetector(
                     onTap: () => _selectDate(context),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 14,
+                      ),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey.shade400),
                         borderRadius: BorderRadius.circular(8),
@@ -149,14 +161,19 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Text('Komentar Anda', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Komentar Anda',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   TextField(
                     controller: commentController,
                     maxLines: 5,
                     decoration: InputDecoration(
                       hintText: 'Tulis Komentar Anda.....',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -165,12 +182,14 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF01497C),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                       onPressed: _submitFeedback,
                       child: const Text('Kirim'),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -200,15 +219,16 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => MonitoringRenovasiScreen(
-                    namaSekolah: 'SMA Negeri 1 Padang',
-                    statusProyekAwal: 'Belum Dimulai',
-                    riwayatPerbaikan: const [
-                      'Penggantian Atap',
-                      'Cat Dinding',
-                      'Pemasangan Keramik',
-                    ],
-                  ),
+                  builder:
+                      (context) => MonitoringRenovasiScreen(
+                        namaSekolah: 'SMA Negeri 1 Padang',
+                        statusProyekAwal: 'Belum Dimulai',
+                        riwayatPerbaikan: const [
+                          'Penggantian Atap',
+                          'Cat Dinding',
+                          'Pemasangan Keramik',
+                        ],
+                      ),
                 ),
               );
             } else if (index == 2) {
