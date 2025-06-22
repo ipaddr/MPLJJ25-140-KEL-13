@@ -4,22 +4,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class DetailPesananScreen extends StatelessWidget {
   final String idPesanan;
 
-  const DetailPesananScreen({
-    super.key,
-    required this.idPesanan,
-  });
+  const DetailPesananScreen({super.key, required this.idPesanan});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detail Pesanan Renovasi'),
-      ),
+      appBar: AppBar(title: const Text('Detail Pesanan Renovasi')),
       body: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('laporan_renovasi') // GANTI dari 'pesanan' ke 'laporan_renovasi'
-            .doc(idPesanan)
-            .snapshots(),
+        stream:
+            FirebaseFirestore.instance
+                .collection(
+                  'laporan_renovasi',
+                ) // GANTI dari 'pesanan' ke 'laporan_renovasi'
+                .doc(idPesanan)
+                .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -28,19 +26,24 @@ class DetailPesananScreen extends StatelessWidget {
             return const Center(child: Text('Data pesanan tidak ditemukan.'));
           }
 
+          // ...existing code...
           final data = snapshot.data!.data() as Map<String, dynamic>;
           // Ambil nama sekolah dari item pertama jika ada
-          final items = (data['items'] as List<dynamic>? ?? [])
-              .map((e) => Map<String, dynamic>.from(e))
-              .toList();
-          final namaSekolah = items.isNotEmpty ? (items.first['title'] ?? '-') : '-';
+          final items =
+              (data['items'] as List<dynamic>? ?? [])
+                  .map((e) => Map<String, dynamic>.from(e))
+                  .toList();
+          final namaSekolah =
+              items.isNotEmpty ? (items.first['title'] ?? '-') : '-';
           final status = data['status'] ?? '-';
+          final buktiImage = data['buktiImage'] as String?; // Tambahkan ini
 
           int total = 0;
           for (var item in items) {
-            final int price = (item['price'] ?? 0) is int
-                ? (item['price'] ?? 0)
-                : int.tryParse(item['price'].toString()) ?? 0;
+            final int price =
+                (item['price'] ?? 0) is int
+                    ? (item['price'] ?? 0)
+                    : int.tryParse(item['price'].toString()) ?? 0;
             total += price;
           }
 
@@ -50,7 +53,10 @@ class DetailPesananScreen extends StatelessWidget {
               children: [
                 Text(
                   namaSekolah,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text('ID: $idPesanan'),
@@ -62,19 +68,38 @@ class DetailPesananScreen extends StatelessWidget {
                       status == 'Disetujui' ? 'Disetujui' : 'Belum Disetujui',
                       style: const TextStyle(color: Colors.white),
                     ),
-                    backgroundColor: status == 'Disetujui' ? Colors.green : Colors.red,
+                    backgroundColor:
+                        status == 'Disetujui' ? Colors.green : Colors.red,
                   ),
                 ),
                 const SizedBox(height: 16),
+                // Tampilkan gambar bukti jika ada
+                if (buktiImage != null && buktiImage.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        buktiImage,
+                        height: 180,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder:
+                            (context, error, stackTrace) =>
+                                const Text('Gambar tidak tersedia'),
+                      ),
+                    ),
+                  ),
                 const Text(
                   'Rincian Pesanan',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 ...items.map((item) {
-                  final int price = (item['price'] ?? 0) is int
-                      ? (item['price'] ?? 0)
-                      : int.tryParse(item['price'].toString()) ?? 0;
+                  final int price =
+                      (item['price'] ?? 0) is int
+                          ? (item['price'] ?? 0)
+                          : int.tryParse(item['price'].toString()) ?? 0;
                   return Card(
                     color: Colors.purple[50],
                     margin: const EdgeInsets.symmetric(vertical: 8),
@@ -89,7 +114,9 @@ class DetailPesananScreen extends StatelessWidget {
                               children: [
                                 Text(
                                   item['title'] ?? '',
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(item['desc'] ?? ''),
@@ -110,7 +137,10 @@ class DetailPesananScreen extends StatelessWidget {
                   alignment: Alignment.centerRight,
                   child: Text(
                     'Total: Rp $total',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ],
@@ -121,3 +151,4 @@ class DetailPesananScreen extends StatelessWidget {
     );
   }
 }
+          // ...existing code...

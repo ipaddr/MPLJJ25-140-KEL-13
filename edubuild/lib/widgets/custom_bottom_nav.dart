@@ -34,45 +34,7 @@ class CustomBottomNav extends StatelessWidget {
           currentIndex: selectedIndex,
           onTap: (index) {
             onIndexChanged(index);
-
-            switch (index) {
-              case 0:
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HomeScreen()),
-                );
-                break;
-              case 1:
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MonitoringRenovasiScreen(
-                      namaSekolah: 'SMA Negeri 1 Padang',
-                      statusProyekAwal: 'Belum Dimulai',
-                      riwayatPerbaikan: const [
-                        'Penggantian Atap',
-                        'Cat Dinding',
-                        'Pemasangan Keramik',
-                      ],
-                    ),
-                  ),
-                );
-                break;
-              case 2:
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => UmpanBalikScreen()),
-                );
-                break;
-              case 3:
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ChatBotScreen(),
-                  ),
-                );
-                break;
-            }
+            // Navigation is now handled by the parent widget!
           },
           items: const [
             BottomNavigationBarItem(

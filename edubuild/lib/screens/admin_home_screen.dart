@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:edubuild/screens/order_detail_screen.dart';
+import 'package:edubuild/screens/detail_pesanan_screen.dart';
 import 'package:edubuild/screens/login_screen.dart';
 import 'package:edubuild/widgets/admin_bottom_nav.dart';
 import 'monitoring_renovasi_screen.dart';
@@ -33,22 +33,35 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             );
           },
         ),
-        title: const Text('Beranda Admin', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Beranda Admin',
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('laporan_renovasi')
-            .orderBy('tanggal', descending: true)
-            .snapshots(),
+        stream:
+            FirebaseFirestore.instance
+                .collection('renovation_items')
+                .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: Colors.white));
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            );
           }
-          final laporanList = snapshot.hasData ? snapshot.data!.docs : [];
+          final sekolahList = snapshot.hasData ? snapshot.data!.docs : [];
+          if (sekolahList.isEmpty) {
+            return const Center(
+              child: Text(
+                'Belum ada data sekolah',
+                style: TextStyle(color: Colors.white),
+              ),
+            );
+          }
           return GridView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: laporanList.isEmpty ? 2 : laporanList.length,
+            itemCount: sekolahList.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               mainAxisSpacing: 12,
@@ -56,75 +69,83 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               childAspectRatio: 3 / 2.2,
             ),
             itemBuilder: (context, index) {
-              if (laporanList.isEmpty) {
-                // Tampilkan grid kosong jika belum ada laporan
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset('assets/images/sekolah.png', height: 80),
-                      const SizedBox(height: 6),
-                      const Text(
-                        'Belum ada laporan',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center,
+              final data = sekolahList[index].data() as Map<String, dynamic>;
+              final namaSekolah = data['title'] ?? '-';
+              final desc = data['desc'] ?? '';
+              final price = data['price'] ?? 0;
+
+              return FutureBuilder<QuerySnapshot>(
+                future:
+                    FirebaseFirestore.instance
+                        .collection('laporan_renovasi')
+                        .where(
+                          'items',
+                          arrayContains: {
+                            'title': namaSekolah,
+                            'desc': desc,
+                            'price': price,
+                          },
+                        )
+                        .orderBy('tanggal', descending: true)
+                        .limit(1)
+                        .get(),
+                builder: (context, laporanSnapshot) {
+                  String status = 'Belum Ada Laporan';
+                  String idPesanan = '';
+                  if (laporanSnapshot.hasData &&
+                      laporanSnapshot.data!.docs.isNotEmpty) {
+                    final laporan =
+                        laporanSnapshot.data!.docs.first.data()
+                            as Map<String, dynamic>;
+                    status = laporan['status'] ?? 'Menunggu';
+                    idPesanan = laporanSnapshot.data!.docs.first.id;
+                  }
+                  return GestureDetector(
+                    onTap:
+                        idPesanan.isNotEmpty
+                            ? () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => DetailPesananScreen(
+                                        idPesanan: idPesanan,
+                                      ),
+                                ),
+                              );
+                            }
+                            : null,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      const Text(
-                        'Status: -',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 12),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset('assets/images/sekolah.png', height: 80),
+                          const SizedBox(height: 6),
+                          Text(
+                            namaSekolah,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
+                          ),
+                          Text(
+                            'Status: $status',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                );
-              }
-              final laporan = laporanList[index].data() as Map<String, dynamic>;
-              final items = laporan['items'] as List<dynamic>? ?? [];
-              final sekolah = items.isNotEmpty ? items[0]['title'] ?? '-' : '-';
-              final status = laporan['status'] ?? 'Menunggu';
-              final idPesanan = laporanList[index].id; // Ambil ID dokumen Firestore
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => OrderDetailScreen(idPesanan: idPesanan),
                     ),
                   );
                 },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset('assets/images/sekolah.png', height: 80),
-                      const SizedBox(height: 6),
-                      Text(
-                        sekolah,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center,
-                      ),
-                      Text(
-                        'Status: $status',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
               );
             },
           );
         },
       ),
-       bottomNavigationBar: AdminBottomNav(),
+      bottomNavigationBar: AdminBottomNav(),
     );
   }
 }

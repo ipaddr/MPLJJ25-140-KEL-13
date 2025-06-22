@@ -18,6 +18,7 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
   int rating = 0;
   DateTime? selectedDate;
   final TextEditingController commentController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -36,19 +37,21 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
   @override
   void dispose() {
     commentController.dispose();
+    nameController.dispose();
     super.dispose();
   }
 
   Future<void> _submitFeedback() async {
     if (rating > 0 &&
         selectedDate != null &&
-        commentController.text.isNotEmpty) {
+        commentController.text.isNotEmpty &&
+        nameController.text.isNotEmpty) {
       try {
         await FirebaseFirestore.instance.collection('feedback').add({
-          'namaSekolah': 'SMA N X XXXXX',
           'tanggal': Timestamp.fromDate(selectedDate!),
           'rating': rating,
           'komentar': commentController.text,
+          'namaPekomentar': nameController.text,
           'createdAt': FieldValue.serverTimestamp(),
         });
         ScaffoldMessenger.of(context).showSnackBar(
@@ -58,6 +61,7 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
           rating = 0;
           selectedDate = null;
           commentController.clear();
+          nameController.clear();
         });
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -95,10 +99,7 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'SMA N X XXXXX',
-              style: TextStyle(color: Colors.white, fontSize: 16),
-            ),
+
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(16),
@@ -109,6 +110,22 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Label dan field identitas pekomentar
+                  const Text(
+                    'Identitas Pekomentar',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      hintText: 'Nama Anda',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   const Text(
                     'Status',
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -207,10 +224,12 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
         child: CustomBottomNav(
           selectedIndex: _selectedIndex,
           onIndexChanged: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-            if (index == 0) {
+            if (index == 2) {
+              // Sudah di Umpan Balik, tidak perlu navigasi
+              setState(() {
+                _selectedIndex = index;
+              });
+            } else if (index == 0) {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -220,19 +239,11 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen> {
                 context,
                 MaterialPageRoute(
                   builder:
-                      (context) => MonitoringRenovasiScreen(
+                      (context) => const MonitoringRenovasiScreen(
                         namaSekolah: 'SMA Negeri 1 Padang',
-                        statusProyekAwal: 'Belum Dimulai',
-                        riwayatPerbaikan: const [
-                          'Penggantian Atap',
-                          'Cat Dinding',
-                          'Pemasangan Keramik',
-                        ],
                       ),
                 ),
               );
-            } else if (index == 2) {
-              // Sudah di Umpan Balik, tidak perlu navigasi
             } else if (index == 3) {
               Navigator.pushReplacement(
                 context,

@@ -163,6 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // ...existing code...
   Future<void> _kirimLaporan() async {
     final filteredItems =
         renovationItems
@@ -182,12 +183,15 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
+    // Ambil hanya satu sekolah (misal yang pertama)
+    final selectedItem = filteredItems.first;
+
     try {
       final docRef = await _firestore.collection('laporan_renovasi').add({
-        'items': filteredItems,
+        'items': [selectedItem], // hanya satu sekolah
         'tanggal': DateTime.now(),
         'status': 'Menunggu',
-        'buktiImage': _image?.path, // Include image path if available
+        'buktiImage': _image?.path,
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Laporan berhasil dikirim!')),
@@ -204,6 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ).showSnackBar(const SnackBar(content: Text('Gagal mengirim laporan!')));
     }
   }
+  // ...existing code...
 
   Widget _buildStatBox(String value, String label, List<Color> gradientColors) {
     return Expanded(
@@ -389,27 +394,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          // Top buttons + Tambah Sekolah
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildTopButton('Pelaporan', Colors.blue.shade800),
-                _buildTopButton('Visualisasi', Colors.blue.shade700),
-                _buildTopButton('Feedback', Colors.blue.shade700),
-                ElevatedButton.icon(
-                  onPressed: _showAddSchoolDialog,
-                  icon: const Icon(Icons.add),
-                  label: const Text('Tambah Sekolah'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[700],
-                    foregroundColor: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
           const SizedBox(height: 10),
           // Renovasi Section
           Expanded(
@@ -470,35 +454,147 @@ class _HomeScreenState extends State<HomeScreen> {
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            item['title'] ?? '',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                    // Info sekolah
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                item['title'] ?? '',
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              Text(
+                                                item['desc'] ?? '',
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                          Text(
-                                            item['desc'] ?? '',
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                            ),
+                                        ),
+                                        Text(
+                                          'Rp ${price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
-                                    Text(
-                                      'Rp ${price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                    const SizedBox(height: 8),
+                                    // Tombol-tombol aksi
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        ElevatedButton(
+                                          onPressed: () async {
+                                            // Pelaporan: buka detail pesanan jika ada laporan untuk sekolah ini
+                                            final snapshot =
+                                                await _firestore
+                                                    .collection(
+                                                      'laporan_renovasi',
+                                                    )
+                                                    .where(
+                                                      'items',
+                                                      arrayContainsAny: [item],
+                                                    )
+                                                    .limit(1)
+                                                    .get();
+                                            if (snapshot.docs.isNotEmpty) {
+                                              final doc = snapshot.docs.first;
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (context) =>
+                                                          DetailPesananScreen(
+                                                            idPesanan: doc.id,
+                                                          ),
+                                                ),
+                                              );
+                                            } else {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    'Belum ada laporan renovasi untuk sekolah ini!',
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                Colors.blue.shade800,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 8,
+                                            ),
+                                          ),
+                                          child: const Text('Pelaporan'),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (context) =>
+                                                        MonitoringRenovasiScreen(
+                                                          namaSekolah:
+                                                              item['title'] ??
+                                                              '',
+                                                        ),
+                                              ),
+                                            );
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                Colors.blue.shade700,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 8,
+                                            ),
+                                          ),
+                                          child: const Text('Visualisasi'),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (context) =>
+                                                        const UmpanBalikScreen(),
+                                              ),
+                                            );
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                Colors.orange.shade700,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 8,
+                                            ),
+                                          ),
+                                          child: const Text('Feedback'),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
@@ -623,11 +719,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 builder:
                     (context) => const MonitoringRenovasiScreen(
                       namaSekolah: "SMA Negeri 1 Padang",
-                      statusProyekAwal: "Belum Dimulai",
-                      riwayatPerbaikan: [
-                        "Pengecatan Dinding",
-                        "Struk Pemesanan",
-                      ],
                     ),
               ),
             );
@@ -679,11 +770,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 builder:
                     (context) => const MonitoringRenovasiScreen(
                       namaSekolah: "SMA Negeri 1 Padang",
-                      statusProyekAwal: "Belum Dimulai",
-                      riwayatPerbaikan: [
-                        "Pengecatan Dinding",
-                        "Struk Pemesanan",
-                      ],
                     ),
               ),
             );
