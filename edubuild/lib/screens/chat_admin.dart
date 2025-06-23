@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:edubuild/screens/admin_home_screen.dart';
+// Tambahkan import warna
+import 'package:edubuild/theme/app_colors.dart';
 
 class ChatAdminScreen extends StatefulWidget {
   const ChatAdminScreen({super.key});
@@ -38,7 +40,7 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chat User'),
-        backgroundColor: const Color(0xFF005792),
+        backgroundColor: AppColors.buttonPrimary(context),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -69,14 +71,17 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
                       decoration: BoxDecoration(
                         color:
                             msg['isUser']
-                                ? const Color(0xFF005792)
-                                : Colors.blue[50],
+                                ? AppColors.buttonPrimary(context)
+                                : AppColors.gradSoftBlue,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         msg['text'],
                         style: TextStyle(
-                          color: msg['isUser'] ? Colors.white : Colors.black,
+                          color:
+                              msg['isUser']
+                                  ? AppColors.textOnPrimary(context)
+                                  : AppColors.textPrimary(context),
                         ),
                       ),
                     ),
@@ -106,7 +111,7 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
                 const SizedBox(width: 8),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF005792),
+                    backgroundColor: AppColors.buttonPrimary(context),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),

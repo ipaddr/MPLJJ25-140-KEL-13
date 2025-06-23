@@ -1,145 +1,528 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../widgets/admin_bottom_nav.dart';
+// Tambahkan import warna
+import 'package:edubuild/theme/app_colors.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
 
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'urgent':
-        return Colors.orange;
-      case 'perlu renovasi':
-        return Colors.red;
-      case 'baik':
-        return Colors.green;
-      default:
-        return Colors.grey;
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage>
+    with SingleTickerProviderStateMixin {
+  int _selectedIndex = 1;
+  Map<String, TextEditingController> _riwayatControllers = {};
+
+  late AnimationController _controller;
+  late Animation<double> _fade;
+  late Animation<Offset> _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    _fade = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+    _slide = Tween<Offset>(
+      begin: const Offset(0, 0.08),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    for (var controller in _riwayatControllers.values) {
+      controller.dispose();
     }
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _updateStatusProyek(String namaSekolah, String newStatus) async {
+    final ref = FirebaseFirestore.instance
+        .collection('monitoring_renovasi')
+        .doc(namaSekolah.replaceAll(' ', '_'));
+    final snapshot = await ref.get();
+    List<String> riwayatPerbaikan = [];
+    if (snapshot.exists) {
+      final data = snapshot.data()!;
+      riwayatPerbaikan = List<String>.from(data['riwayatPerbaikan'] ?? []);
+    }
+    await ref.set({
+      'namaSekolah': namaSekolah,
+      'statusProyek': newStatus,
+      'riwayatPerbaikan': riwayatPerbaikan,
+    }, SetOptions(merge: true));
+  }
+
+  Future<void> _addRiwayatPerbaikan(
+    String namaSekolah,
+    String perbaikan,
+  ) async {
+    final ref = FirebaseFirestore.instance
+        .collection('monitoring_renovasi')
+        .doc(namaSekolah.replaceAll(' ', '_'));
+    final snapshot = await ref.get();
+    List<String> riwayatPerbaikan = [];
+    if (snapshot.exists) {
+      final data = snapshot.data()!;
+      riwayatPerbaikan = List<String>.from(data['riwayatPerbaikan'] ?? []);
+    }
+    riwayatPerbaikan.add(perbaikan);
+    await ref.set({
+      'namaSekolah': namaSekolah,
+      'riwayatPerbaikan': riwayatPerbaikan,
+    }, SetOptions(merge: true));
+  }
+
+  void _onKirimPressed() {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Data berhasil dikirim!')));
+    // Anda bisa menambahkan aksi lain di sini jika diperlukan
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF005A9C),
-        title: const Text('Dashboard Admin'),
-        leading: IconButton(icon: const Icon(Icons.menu), onPressed: () {}),
-      ),
-      bottomNavigationBar: const AdminBottomNav(),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: [
-                  _buildStatCard('Total Sekolah', '1.245'),
-                  _buildStatCard('Laporan Baru', '32'),
-                  _buildStatCard('proyek selesai', '5'),
-                  _buildStatCard('Target Bulan Selesai', '8'),
-                ],
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Lihat buat penilaian sekolah',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              // Ambil data sekolah dari Firestore
-              StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance.collection('sekolah').snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const Text('Belum ada data sekolah.');
-                  }
-                  final docs = snapshot.data!.docs;
-                  return Column(
-                    children: docs.map((doc) {
-                      final data = doc.data() as Map<String, dynamic>;
-                      final name = data['name'] ?? '-';
-                      final address = data['address'] ?? '-';
-                      final status = data['status'] ?? '-';
-                      final statusColor = _getStatusColor(status);
-                      return _buildSchoolItem(name, address, status, statusColor);
-                    }).toList(),
-                  );
-                },
-              ),
-              const SizedBox(height: 24),
-              const Divider(),
-              const SizedBox(height: 12),
-              const Text(
-                'EduBuild\n© 2025 EduBuild.\nPlatform untuk memantau dan menilai kondisi sekolah di seluruh Indonesia.\nHubungi Kami : support@edubuild.id',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-            ],
+        backgroundColor: AppColors.surface(context).withOpacity(0.95),
+        elevation: 0,
+        title: Text(
+          'Dashboard Admin',
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
+            fontWeight: FontWeight.bold,
           ),
         ),
+        iconTheme: IconThemeData(color: AppColors.textPrimary(context)),
+        centerTitle: true,
       ),
-    );
-  }
-
-  Widget _buildStatCard(String title, String value) {
-    return Container(
-      width: 160,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade300,
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      bottomNavigationBar: const AdminBottomNav(selectedIndex: 1),
+      body: Stack(
         children: [
-          Text(title, style: const TextStyle(fontSize: 14)),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF005A9C),
+          const _SoftBluePurpleBackground(),
+          FadeTransition(
+            opacity: _fade,
+            child: SlideTransition(
+              position: _slide,
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      StreamBuilder<QuerySnapshot>(
+                        stream:
+                            FirebaseFirestore.instance
+                                .collection('renovation_items')
+                                .snapshots(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.buttonPrimary(context),
+                              ),
+                            );
+                          }
+                          if (!snapshot.hasData ||
+                              snapshot.data!.docs.isEmpty) {
+                            return const Text('Belum ada data sekolah.');
+                          }
+                          final docs = snapshot.data!.docs;
+                          return Column(
+                            children:
+                                docs.map((doc) {
+                                  final data =
+                                      doc.data() as Map<String, dynamic>;
+                                  final namaSekolah = data['title'] ?? '-';
+                                  final fotoSekolah = data['fotoSekolah'];
+                                  final sekolahKey = namaSekolah.replaceAll(
+                                    ' ',
+                                    '_',
+                                  );
+                                  _riwayatControllers.putIfAbsent(
+                                    sekolahKey,
+                                    () => TextEditingController(),
+                                  );
+
+                                  return FutureBuilder<DocumentSnapshot>(
+                                    future:
+                                        FirebaseFirestore.instance
+                                            .collection('monitoring_renovasi')
+                                            .doc(sekolahKey)
+                                            .get(),
+                                    builder: (context, monitorSnapshot) {
+                                      String statusProyek = 'Belum Dimulai';
+                                      List<String> riwayatPerbaikan = [];
+                                      if (monitorSnapshot.hasData &&
+                                          monitorSnapshot.data!.exists) {
+                                        final monitorData =
+                                            monitorSnapshot.data!.data()
+                                                as Map<String, dynamic>;
+                                        statusProyek =
+                                            monitorData['statusProyek'] ??
+                                            'Belum Dimulai';
+                                        riwayatPerbaikan = List<String>.from(
+                                          monitorData['riwayatPerbaikan'] ?? [],
+                                        );
+                                      }
+                                      return Container(
+                                        margin: const EdgeInsets.symmetric(
+                                          vertical: 16,
+                                        ),
+                                        padding: const EdgeInsets.all(18),
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: AppColors.cardGradient(
+                                              context,
+                                            ),
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            18,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: AppColors.shadow(context),
+                                              blurRadius: 16,
+                                              offset: const Offset(0, 4),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              namaSekolah,
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: AppColors.textPrimary(
+                                                  context,
+                                                ),
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            const SizedBox(height: 8),
+                                            Center(
+                                              child: Container(
+                                                width: 280,
+                                                height: 180,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: AppColors.shadow(
+                                                        context,
+                                                      ),
+                                                      blurRadius: 8,
+                                                      offset: const Offset(
+                                                        0,
+                                                        2,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  child:
+                                                      fotoSekolah != null &&
+                                                              fotoSekolah
+                                                                  .toString()
+                                                                  .isNotEmpty
+                                                          ? Image.network(
+                                                            fotoSekolah,
+                                                            fit: BoxFit.cover,
+                                                          )
+                                                          : Image.asset(
+                                                            'assets/images/sekolah.png',
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 14),
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 16.0,
+                                                    vertical: 8,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: AppColors.surface(
+                                                  context,
+                                                ).withOpacity(0.85),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                border: Border.all(
+                                                  color: Colors.grey.shade300,
+                                                ),
+                                              ),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    'Status Proyek',
+                                                    style: TextStyle(
+                                                      fontSize: 15,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color:
+                                                          AppColors.textPrimary(
+                                                            context,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                  DropdownButtonHideUnderline(
+                                                    child: DropdownButton<
+                                                      String
+                                                    >(
+                                                      isExpanded: true,
+                                                      value: statusProyek,
+                                                      alignment:
+                                                          Alignment.center,
+                                                      items: const [
+                                                        DropdownMenuItem(
+                                                          value:
+                                                              'Belum Dimulai',
+                                                          child: Text(
+                                                            'Belum Dimulai',
+                                                          ),
+                                                        ),
+                                                        DropdownMenuItem(
+                                                          value:
+                                                              'Sedang Berlangsung',
+                                                          child: Text(
+                                                            'Sedang Berlangsung',
+                                                          ),
+                                                        ),
+                                                        DropdownMenuItem(
+                                                          value:
+                                                              'Sudah Selesai',
+                                                          child: Text(
+                                                            'Sudah Selesai',
+                                                          ),
+                                                        ),
+                                                      ],
+                                                      onChanged: (value) {
+                                                        if (value != null) {
+                                                          _updateStatusProyek(
+                                                            namaSekolah,
+                                                            value,
+                                                          );
+                                                          setState(() {});
+                                                        }
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(height: 16),
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 16.0,
+                                                    vertical: 8,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: AppColors.surface(
+                                                  context,
+                                                ).withOpacity(0.85),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                border: Border.all(
+                                                  color: Colors.grey.shade300,
+                                                ),
+                                              ),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    'Riwayat Perbaikan',
+                                                    style: TextStyle(
+                                                      fontSize: 15,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color:
+                                                          AppColors.textPrimary(
+                                                            context,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 6),
+                                                  ListView.builder(
+                                                    shrinkWrap: true,
+                                                    physics:
+                                                        const NeverScrollableScrollPhysics(),
+                                                    itemCount:
+                                                        riwayatPerbaikan.length,
+                                                    itemBuilder: (
+                                                      context,
+                                                      index,
+                                                    ) {
+                                                      return Card(
+                                                        color:
+                                                            AppColors
+                                                                .gradSoftPurple,
+                                                        child: ListTile(
+                                                          leading: Icon(
+                                                            Icons.history,
+                                                            color:
+                                                                AppColors.textSecondary(
+                                                                  context,
+                                                                ),
+                                                          ),
+                                                          title: Text(
+                                                            riwayatPerbaikan[index],
+                                                            textAlign:
+                                                                TextAlign
+                                                                    .center,
+                                                            style: TextStyle(
+                                                              color:
+                                                                  AppColors.textPrimary(
+                                                                    context,
+                                                                  ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: TextField(
+                                                          controller:
+                                                              _riwayatControllers[sekolahKey],
+                                                          decoration: const InputDecoration(
+                                                            hintText:
+                                                                'Tambah riwayat perbaikan',
+                                                            border:
+                                                                OutlineInputBorder(),
+                                                          ),
+                                                          onSubmitted: (
+                                                            value,
+                                                          ) async {
+                                                            if (value
+                                                                .trim()
+                                                                .isNotEmpty) {
+                                                              await _addRiwayatPerbaikan(
+                                                                namaSekolah,
+                                                                value.trim(),
+                                                              );
+                                                              _riwayatControllers[sekolahKey]
+                                                                  ?.clear();
+                                                              setState(() {});
+                                                            }
+                                                          },
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 8),
+                                                      ElevatedButton(
+                                                        style: ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              AppColors.buttonSecondary(
+                                                                context,
+                                                              ),
+                                                          foregroundColor:
+                                                              Colors.white,
+                                                        ),
+                                                        onPressed: () async {
+                                                          final value =
+                                                              _riwayatControllers[sekolahKey]
+                                                                  ?.text ??
+                                                              '';
+                                                          if (value
+                                                              .trim()
+                                                              .isNotEmpty) {
+                                                            await _addRiwayatPerbaikan(
+                                                              namaSekolah,
+                                                              value.trim(),
+                                                            );
+                                                            _riwayatControllers[sekolahKey]
+                                                                ?.clear();
+                                                            setState(() {});
+                                                          }
+                                                        },
+                                                        child: const Icon(
+                                                          Icons.add,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  );
+                                }).toList(),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.buttonPrimary(context),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          onPressed: _onKirimPressed,
+                          child: const Text(
+                            'Kirim',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildSchoolItem(
-    String name,
-    String address,
-    String status,
-    Color statusColor,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-              Text(status, style: TextStyle(color: statusColor)),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(address, style: const TextStyle(color: Colors.grey)),
-        ],
+class _SoftBluePurpleBackground extends StatelessWidget {
+  const _SoftBluePurpleBackground();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: AppColors.cardGradient(context),
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
       ),
     );
   }

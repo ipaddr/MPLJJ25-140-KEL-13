@@ -11,7 +11,12 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  google_generative_ai: ^0.1.0
+  google_generative_ai: ^0.2.2
+  
+  # supabase
+  supabase_flutter: ^2.3.4
+  permission_handler: ^11.0.1
+  path: ^1.8.3
   
   # UI Components
   dotted_border: ^2.1.0

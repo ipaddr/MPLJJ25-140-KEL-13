@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'chat_admin.dart';
-import 'admin_home_screen.dart'; // Tambahkan import ini
+import 'admin_home_screen.dart';
+import 'home_screen.dart';
+// Tambahkan import warna
+import 'package:edubuild/theme/app_colors.dart';
 
 class ChatBotScreen extends StatefulWidget {
   const ChatBotScreen({super.key});
@@ -10,7 +13,8 @@ class ChatBotScreen extends StatefulWidget {
   State<ChatBotScreen> createState() => _ChatBotScreenState();
 }
 
-class _ChatBotScreenState extends State<ChatBotScreen> {
+class _ChatBotScreenState extends State<ChatBotScreen>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
   final List<Map<String, dynamic>> _messages = [
     {'text': 'Selamat datang di EduBuild!', 'isUser': false},
@@ -19,15 +23,33 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
   // Initialize Gemini
   final model = GenerativeModel(
     model: 'gemini-2.0-flash',
-    apiKey:
-        'AIzaSyDQZLwrYTxwBPQJPqH3MbOoUZibxVomzOo', // Replace with your actual API key
+    apiKey: 'AIzaSyDQZLwrYTxwBPQJPqH3MbOoUZibxVomzOo',
   );
   late ChatSession chat;
+
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
     chat = model.startChat();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.08),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+    _animationController.forward();
   }
 
   Future<void> _sendMessage() async {
@@ -40,7 +62,6 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
     });
 
     try {
-      // Show loading indicator
       setState(() {
         _messages.add({
           'text': 'Sedang mengetik...',
@@ -49,11 +70,9 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
         });
       });
 
-      // Get response from Gemini
       final response = await chat.sendMessage(Content.text(text));
       final responseText = response.text;
 
-      // Remove loading indicator and add actual response
       setState(() {
         _messages.removeLast();
         _messages.add({
@@ -72,134 +91,274 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
     }
   }
 
+  Widget _buildSoftBlueBackground() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: AppColors.cardGradient(context),
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background(context),
       appBar: AppBar(
-        title: const Text('ChatBot EduBuild'),
-        backgroundColor: const Color(0xFF005792),
+        title: Text(
+          'ChatBot EduBuild',
+          style: TextStyle(color: AppColors.textPrimary(context)),
+        ),
+        backgroundColor: AppColors.surface(context).withOpacity(0.95),
         centerTitle: true,
+        elevation: 2,
+        shadowColor: AppColors.gradEnd.withOpacity(0.10),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const AdminHomeScreen()),
+          icon: Icon(Icons.arrow_back, color: AppColors.textPrimary(context)),
+          onPressed: () async {
+            final result = await showDialog<String>(
+              context: context,
+              builder:
+                  (context) => AlertDialog(
+                    title: const Text('Kembali ke mana?'),
+                    content: const Text('Pilih tujuan kembali:'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, 'admin'),
+                        child: const Text('Admin'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, 'user'),
+                        child: const Text('User'),
+                      ),
+                    ],
+                  ),
             );
+            if (!mounted) return;
+            if (result == 'admin') {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AdminHomeScreen(),
+                ),
+              );
+            } else if (result == 'user') {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const HomeScreen()),
+              );
+            }
           },
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF005792),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text(
-                'ChatBot EduBuild',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final msg = _messages[index];
-                  return Align(
-                    alignment:
-                        msg['isUser']
-                            ? Alignment.centerRight
-                            : Alignment.centerLeft,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 4),
-                      padding: const EdgeInsets.all(12),
+      body: Stack(
+        children: [
+          _buildSoftBlueBackground(),
+          FadeTransition(
+            opacity: _fadeAnimation,
+            child: SlideTransition(
+              position: _slideAnimation,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+                child: Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color:
-                            msg['isUser']
-                                ? const Color(0xFF005792)
-                                : Colors.blue[50],
-                        borderRadius: BorderRadius.circular(8),
+                        gradient: LinearGradient(
+                          colors: [AppColors.gradStart, AppColors.gradEnd],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.gradEnd.withOpacity(0.10),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      child: Text(
-                        msg['text'],
+                      child: const Text(
+                        'ChatBot EduBuild',
                         style: TextStyle(
-                          color: msg['isUser'] ? Colors.white : Colors.black,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          letterSpacing: 0.2,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.surface(context).withOpacity(0.97),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.gradEnd.withOpacity(0.07),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.all(10),
+                        child: ListView.builder(
+                          itemCount: _messages.length,
+                          reverse: false,
+                          itemBuilder: (context, index) {
+                            final msg = _messages[index];
+                            final isUser = msg['isUser'] as bool;
+                            return Align(
+                              alignment:
+                                  isUser
+                                      ? Alignment.centerRight
+                                      : Alignment.centerLeft,
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 220),
+                                margin: const EdgeInsets.symmetric(vertical: 4),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  gradient:
+                                      isUser
+                                          ? LinearGradient(
+                                            colors: [
+                                              AppColors.gradStart,
+                                              AppColors.gradEnd,
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          )
+                                          : null,
+                                  color:
+                                      isUser
+                                          ? null
+                                          : AppColors.background(context),
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: [
+                                    if (isUser)
+                                      BoxShadow(
+                                        color: AppColors.gradEnd.withOpacity(
+                                          0.10,
+                                        ),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                  ],
+                                ),
+                                child: Text(
+                                  msg['text'],
+                                  style: TextStyle(
+                                    color:
+                                        isUser
+                                            ? Colors.white
+                                            : AppColors.textPrimary(context),
+                                    fontWeight:
+                                        isUser
+                                            ? FontWeight.w500
+                                            : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ),
-                  );
-                },
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _controller,
+                            decoration: InputDecoration(
+                              hintText: 'Ketik Pesan',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: AppColors.gradSoftPurple,
+                                  width: 1.2,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: AppColors.gradSoftPurple,
+                                  width: 1.2,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: AppColors.gradEnd,
+                                  width: 1.5,
+                                ),
+                              ),
+                              filled: true,
+                              fillColor: AppColors.background(context),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                            ),
+                            style: TextStyle(
+                              color: AppColors.textPrimary(context),
+                            ),
+                            onSubmitted: (_) => _sendMessage(),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.buttonPrimary(context),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 2,
+                            shadowColor: AppColors.gradEnd.withOpacity(0.13),
+                          ),
+                          onPressed: _sendMessage,
+                          child: const Icon(Icons.send, color: Colors.white),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.surface(context),
+                            foregroundColor: AppColors.textPrimary(context),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              side: BorderSide(
+                                color: AppColors.textPrimary(context),
+                              ),
+                            ),
+                            elevation: 0,
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ChatAdminScreen(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.support_agent),
+                          label: const Text('Chat Admin'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: InputDecoration(
-                      hintText: 'Ketik Pesan',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                    ),
-                    onSubmitted: (_) => _sendMessage(),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF005792),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onPressed: _sendMessage,
-                  child: const Text('Kirim'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF005792),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ChatAdminScreen(),
-                      ),
-                    );
-                  },
-                  child: const Text('Chat Admin'),
-                ),
-              ],
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
