@@ -3,11 +3,9 @@ import '../screens/admin_home_screen.dart';
 import '../screens/dashboard.dart';
 import '../screens/feedback.dart';
 import '../screens/chat_admin.dart';
-import '../screens/chatbot.dart'; // Import ChatBotScreen
+import '../screens/chatbot.dart';
 import '../screens/home_screen.dart';
-// Tambahkan import warna
 import 'package:edubuild/theme/app_colors.dart';
-// Tambahkan import theme controller
 import 'package:edubuild/theme/theme_controller.dart';
 
 class AdminBottomNav extends StatefulWidget {
@@ -24,12 +22,13 @@ class AdminBottomNav extends StatefulWidget {
 class _AdminBottomNavState extends State<AdminBottomNav> {
   int _currentIndex = 0;
 
-  static const List<_NavItemData> _navItems = [
-    _NavItemData(icon: Icons.home, label: "Beranda Admin"),
-    _NavItemData(icon: Icons.dashboard, label: "Monitoring Control"),
-    _NavItemData(icon: Icons.edit_note, label: "Feedback"),
-    _NavItemData(icon: Icons.chat, label: "Chat Bot"),
-    _NavItemData(icon: Icons.person, label: "User"),
+  static const List<IconData> _navIcons = [
+    Icons.home,
+    Icons.dashboard,
+    Icons.edit_note,
+    Icons.chat,
+    Icons.person,
+    // Dark mode icon will be added as the last item
   ];
 
   @override
@@ -39,6 +38,12 @@ class _AdminBottomNavState extends State<AdminBottomNav> {
   }
 
   void _onNavTap(int index, BuildContext context) {
+    // If dark mode icon tapped (last index)
+    if (index == _navIcons.length) {
+      ThemeController.toggleTheme();
+      setState(() {}); // Refresh to update icon
+      return;
+    }
     setState(() {
       _currentIndex = index;
     });
@@ -58,7 +63,7 @@ class _AdminBottomNavState extends State<AdminBottomNav> {
         screen = const FeedbackPage();
         break;
       case 3:
-        screen = const ChatBotScreen(); // Arahkan ke ChatBotScreen
+        screen = const ChatBotScreen();
         break;
       case 4:
         screen = const HomeScreen();
@@ -74,9 +79,9 @@ class _AdminBottomNavState extends State<AdminBottomNav> {
 
   @override
   Widget build(BuildContext context) {
-    // Warna gradasi dari AppColors
     final gradStart = AppColors.gradStart;
     final gradEnd = AppColors.gradEnd;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       decoration: BoxDecoration(
@@ -94,51 +99,27 @@ class _AdminBottomNavState extends State<AdminBottomNav> {
           ),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      padding: const EdgeInsets.only(bottom: 8, top: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Text(
-              "© EduBuild 2025",
-              style: TextStyle(
-                fontSize: 12,
-                color: AppColors.textPrimary(context),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 4, left: 8, right: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(_navItems.length, (index) {
-                final isSelected = _currentIndex == index;
-                return _AnimatedNavItem(
-                  icon: _navItems[index].icon,
-                  label: _navItems[index].label,
-                  selected: isSelected,
-                  gradStart: gradStart,
-                  gradEnd: gradEnd,
-                  onTap: () => _onNavTap(index, context),
-                );
-              }),
-            ),
-          ),
-          // Tambahkan tombol dark mode di bawah navigation bar
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: IconButton(
-              icon: Icon(
-                Theme.of(context).brightness == Brightness.dark
-                    ? Icons.dark_mode
-                    : Icons.light_mode,
-                color: AppColors.textPrimary(context),
-              ),
-              tooltip: 'Toggle Dark Mode',
-              onPressed: () {
-                ThemeController.toggleTheme();
-              },
-            ),
+          ...List.generate(_navIcons.length, (index) {
+            final isSelected = _currentIndex == index;
+            return _CompactNavIcon(
+              icon: _navIcons[index],
+              selected: isSelected,
+              gradStart: gradStart,
+              gradEnd: gradEnd,
+              onTap: () => _onNavTap(index, context),
+            );
+          }),
+          // Dark mode toggle icon
+          _CompactNavIcon(
+            icon: isDark ? Icons.dark_mode : Icons.light_mode,
+            selected: false,
+            gradStart: gradStart,
+            gradEnd: gradEnd,
+            onTap: () => _onNavTap(_navIcons.length, context),
           ),
         ],
       ),
@@ -146,23 +127,15 @@ class _AdminBottomNavState extends State<AdminBottomNav> {
   }
 }
 
-class _NavItemData {
+class _CompactNavIcon extends StatelessWidget {
   final IconData icon;
-  final String label;
-  const _NavItemData({required this.icon, required this.label});
-}
-
-class _AnimatedNavItem extends StatefulWidget {
-  final IconData icon;
-  final String label;
   final bool selected;
   final VoidCallback onTap;
   final Color gradStart;
   final Color gradEnd;
 
-  const _AnimatedNavItem({
+  const _CompactNavIcon({
     required this.icon,
-    required this.label,
     required this.selected,
     required this.onTap,
     required this.gradStart,
@@ -170,76 +143,47 @@ class _AnimatedNavItem extends StatefulWidget {
   });
 
   @override
-  State<_AnimatedNavItem> createState() => _AnimatedNavItemState();
-}
-
-class _AnimatedNavItemState extends State<_AnimatedNavItem> {
-  bool _hovering = false;
-
-  @override
   Widget build(BuildContext context) {
-    final bool active = widget.selected || _hovering;
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovering = true),
-      onExit: (_) => setState(() => _hovering = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOutCubic,
-        margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-        padding: EdgeInsets.symmetric(
-          horizontal: active ? 10 : 6,
-          vertical: active ? 8 : 6,
-        ),
-        constraints: const BoxConstraints(minWidth: 0, maxWidth: 110),
-        decoration: BoxDecoration(
-          gradient:
-              active
-                  ? LinearGradient(
-                    colors: [widget.gradStart, widget.gradEnd],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  )
-                  : null,
-          color: active ? null : Colors.transparent,
-          borderRadius: BorderRadius.circular(active ? 14 : 10),
-          boxShadow:
-              active
-                  ? [
-                    BoxShadow(
-                      color: widget.gradEnd.withOpacity(0.13),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                  : [],
-        ),
+    final active = selected;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: Material(
+        color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
-          onTap: widget.onTap,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                widget.icon,
-                color: active ? Colors.white : AppColors.textPrimary(context),
-                size: active ? 22 : 20,
-              ),
-              const SizedBox(width: 4),
-              Flexible(
-                child: AnimatedDefaultTextStyle(
-                  duration: const Duration(milliseconds: 220),
-                  style: TextStyle(
-                    color:
-                        active ? Colors.white : AppColors.textPrimary(context),
-                    fontWeight: active ? FontWeight.bold : FontWeight.normal,
-                    fontSize: active ? 13 : 11,
-                    letterSpacing: 0.2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  child: Text(widget.label, maxLines: 1),
-                ),
-              ),
-            ],
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 120),
+            curve: Curves.easeInOutCubic,
+            margin: const EdgeInsets.symmetric(vertical: 2),
+            padding: EdgeInsets.all(active ? 10 : 8),
+            decoration: BoxDecoration(
+              gradient:
+                  active
+                      ? LinearGradient(
+                        colors: [gradStart, gradEnd],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                      : null,
+              color: active ? null : Colors.transparent,
+              borderRadius: BorderRadius.circular(active ? 14 : 10),
+              boxShadow:
+                  active
+                      ? [
+                        BoxShadow(
+                          color: gradEnd.withOpacity(0.13),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ]
+                      : [],
+            ),
+            child: Icon(
+              icon,
+              color: active ? Colors.white : AppColors.textPrimary(context),
+              size: active ? 24 : 22,
+            ),
           ),
         ),
       ),
