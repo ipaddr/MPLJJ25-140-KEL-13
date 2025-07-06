@@ -8,7 +8,7 @@ import 'feedback.dart';
 import 'package:edubuild/theme/app_colors.dart';
 
 class AdminHomeScreen extends StatefulWidget {
-  const AdminHomeScreen({Key? key}) : super(key: key);
+  const AdminHomeScreen({super.key});
 
   @override
   State<AdminHomeScreen> createState() => _AdminHomeScreenState();
@@ -16,7 +16,6 @@ class AdminHomeScreen extends StatefulWidget {
 
 class _AdminHomeScreenState extends State<AdminHomeScreen>
     with SingleTickerProviderStateMixin {
-
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;

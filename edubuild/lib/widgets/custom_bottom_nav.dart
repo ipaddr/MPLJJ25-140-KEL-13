@@ -66,7 +66,7 @@ class CustomBottomNav extends StatelessWidget {
                   gradEnd: gradEnd,
                 ),
               );
-            }).toList(),
+            }),
             // Dark Mode Toggle - Ini akan menjadi item terakhir (index 5)
             Expanded(
               child: _buildNavItem(

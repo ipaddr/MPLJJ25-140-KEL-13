@@ -124,12 +124,12 @@ class _HomeScreenState extends State<HomeScreen>
   // ...existing import and class code...
 
   Future<void> _showAddSchoolDialog() async {
-    final _titleController = TextEditingController();
-    final _descController = TextEditingController();
-    final _priceController = TextEditingController();
+    final titleController = TextEditingController();
+    final descController = TextEditingController();
+    final priceController = TextEditingController();
 
-    File? _dialogImage;
-    String? _dialogUploadedImageUrl;
+    File? dialogImage;
+    String? dialogUploadedImageUrl;
 
     List<Map<String, TextEditingController>> toolsControllers = [
       {
@@ -150,14 +150,14 @@ class _HomeScreenState extends State<HomeScreen>
       },
     ];
 
-    Future<void> _pickDialogImage(StateSetter setStateDialog) async {
+    Future<void> pickDialogImage(StateSetter setStateDialog) async {
       try {
         final XFile? pickedFile = await _picker.pickImage(
           source: ImageSource.gallery,
         );
         if (pickedFile != null) {
           setStateDialog(() {
-            _dialogImage = File(pickedFile.path);
+            dialogImage = File(pickedFile.path);
           });
 
           // Upload ke Supabase Storage
@@ -182,11 +182,11 @@ class _HomeScreenState extends State<HomeScreen>
                 .from('bukti-renovasi')
                 .getPublicUrl(fileName);
             setStateDialog(() {
-              _dialogUploadedImageUrl = publicUrl;
+              dialogUploadedImageUrl = publicUrl;
             });
           } else {
             setStateDialog(() {
-              _dialogUploadedImageUrl = null;
+              dialogUploadedImageUrl = null;
             });
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Gagal upload ke Supabase')),
@@ -250,7 +250,7 @@ class _HomeScreenState extends State<HomeScreen>
                           // Upload & preview foto sekolah
                           Row(
                             children: [
-                              if (_dialogUploadedImageUrl != null)
+                              if (dialogUploadedImageUrl != null)
                                 Container(
                                   height: 48,
                                   width: 48,
@@ -258,7 +258,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   decoration: BoxDecoration(
                                     image: DecorationImage(
                                       image: NetworkImage(
-                                        _dialogUploadedImageUrl!,
+                                        dialogUploadedImageUrl!,
                                       ),
                                       fit: BoxFit.cover,
                                     ),
@@ -269,14 +269,14 @@ class _HomeScreenState extends State<HomeScreen>
                                     ),
                                   ),
                                 )
-                              else if (_dialogImage != null)
+                              else if (dialogImage != null)
                                 Container(
                                   height: 48,
                                   width: 48,
                                   margin: const EdgeInsets.only(right: 10),
                                   decoration: BoxDecoration(
                                     image: DecorationImage(
-                                      image: FileImage(_dialogImage!),
+                                      image: FileImage(dialogImage!),
                                       fit: BoxFit.cover,
                                     ),
                                     borderRadius: BorderRadius.circular(10),
@@ -288,7 +288,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 ),
                               ElevatedButton.icon(
                                 onPressed:
-                                    () => _pickDialogImage(setStateDialog),
+                                    () => pickDialogImage(setStateDialog),
                                 icon: const Icon(Icons.upload_file, size: 18),
                                 label: const Text('Upload Foto'),
                                 style: ElevatedButton.styleFrom(
@@ -314,7 +314,7 @@ class _HomeScreenState extends State<HomeScreen>
                           const SizedBox(height: 16),
                           // Input fields
                           TextField(
-                            controller: _titleController,
+                            controller: titleController,
                             decoration: InputDecoration(
                               labelText: 'Nama Sekolah',
                               filled: true,
@@ -350,7 +350,7 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                           const SizedBox(height: 10),
                           TextField(
-                            controller: _descController,
+                            controller: descController,
                             decoration: InputDecoration(
                               labelText: 'Deskripsi Renovasi',
                               filled: true,
@@ -382,7 +382,7 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                           const SizedBox(height: 10),
                           TextField(
-                            controller: _priceController,
+                            controller: priceController,
                             decoration: InputDecoration(
                               labelText: 'Biaya (Rp)',
                               filled: true,
@@ -575,19 +575,19 @@ class _HomeScreenState extends State<HomeScreen>
                             children: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: const Text('Batal'),
                                 style: TextButton.styleFrom(
                                   foregroundColor: Colors.grey[600],
                                   textStyle: const TextStyle(fontSize: 15),
                                 ),
+                                child: const Text('Batal'),
                               ),
                               const SizedBox(width: 10),
                               ElevatedButton(
                                 onPressed: () async {
-                                  if (_titleController.text.isEmpty ||
-                                      _descController.text.isEmpty ||
-                                      _priceController.text.isEmpty ||
-                                      _dialogUploadedImageUrl == null) {
+                                  if (titleController.text.isEmpty ||
+                                      descController.text.isEmpty ||
+                                      priceController.text.isEmpty ||
+                                      dialogUploadedImageUrl == null) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text(
@@ -610,13 +610,13 @@ class _HomeScreenState extends State<HomeScreen>
                                   }
                                   try {
                                     final newItem = {
-                                      'title': _titleController.text,
-                                      'desc': _descController.text,
+                                      'title': titleController.text,
+                                      'desc': descController.text,
                                       'price':
-                                          int.tryParse(_priceController.text) ??
+                                          int.tryParse(priceController.text) ??
                                           0,
                                       'tools': tools,
-                                      'fotoSekolah': _dialogUploadedImageUrl,
+                                      'fotoSekolah': dialogUploadedImageUrl,
                                     };
                                     // Simpan ke renovation_items (untuk list sekolah)
                                     await _firestore
@@ -630,8 +630,8 @@ class _HomeScreenState extends State<HomeScreen>
                                           'items': [newItem],
                                           'tanggal': DateTime.now(),
                                           'status': 'Menunggu',
-                                          'buktiImage': _dialogUploadedImageUrl,
-                                          'namaSekolah': _titleController.text,
+                                          'buktiImage': dialogUploadedImageUrl,
+                                          'namaSekolah': titleController.text,
                                         });
 
                                     setState(() => searchQuery = '');
@@ -1209,8 +1209,7 @@ class _HomeScreenState extends State<HomeScreen>
                                         .toLowerCase()
                                         .contains(searchQuery.toLowerCase()),
                                   )
-                                  .map(_buildRenovationItem)
-                                  .toList(),
+                                  .map(_buildRenovationItem),
                           ],
                         ),
                       ),

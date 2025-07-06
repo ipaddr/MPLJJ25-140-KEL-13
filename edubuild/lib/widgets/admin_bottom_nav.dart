@@ -12,8 +12,11 @@ class AdminBottomNav extends StatefulWidget {
   final int selectedIndex;
   final ValueChanged<int>? onIndexChanged;
 
-  const AdminBottomNav({Key? key, this.selectedIndex = 0, this.onIndexChanged})
-    : super(key: key);
+  const AdminBottomNav({
+    super.key,
+    this.selectedIndex = 0,
+    this.onIndexChanged,
+  });
 
   @override
   State<AdminBottomNav> createState() => _AdminBottomNavState();

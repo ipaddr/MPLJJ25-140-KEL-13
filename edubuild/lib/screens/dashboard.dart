@@ -5,7 +5,7 @@ import '../widgets/admin_bottom_nav.dart';
 import 'package:edubuild/theme/app_colors.dart';
 
 class DashboardPage extends StatefulWidget {
-  const DashboardPage({Key? key}) : super(key: key);
+  const DashboardPage({super.key});
 
   @override
   State<DashboardPage> createState() => _DashboardPageState();
@@ -13,8 +13,8 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage>
     with SingleTickerProviderStateMixin {
-  int _selectedIndex = 1;
-  Map<String, TextEditingController> _riwayatControllers = {};
+  final int _selectedIndex = 1;
+  final Map<String, TextEditingController> _riwayatControllers = {};
 
   late AnimationController _controller;
   late Animation<double> _fade;

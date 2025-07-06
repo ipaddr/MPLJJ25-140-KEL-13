@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../widgets/mobile_wrapper.dart';
 import '../widgets/custom_bottom_nav.dart';
 import 'home_screen.dart';
 import 'monitoring_renovasi_screen.dart';
@@ -200,9 +199,10 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen>
                               return IconButton(
                                 icon: Icon(
                                   Icons.star,
-                                  color: index < rating
-                                      ? Colors.orange
-                                      : Colors.grey.shade400,
+                                  color:
+                                      index < rating
+                                          ? Colors.orange
+                                          : Colors.grey.shade400,
                                 ),
                                 onPressed: () {
                                   setState(() {
@@ -280,7 +280,9 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen>
                             width: double.infinity,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.buttonPrimary(context),
+                                backgroundColor: AppColors.buttonPrimary(
+                                  context,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -354,9 +356,10 @@ class _UmpanBalikScreenState extends State<UmpanBalikScreen>
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const MonitoringRenovasiScreen(
-                    namaSekolah: 'SMA Negeri 1 Padang',
-                  ),
+                  builder:
+                      (context) => const MonitoringRenovasiScreen(
+                        namaSekolah: 'SMA Negeri 1 Padang',
+                      ),
                 ),
               );
             } else if (index == 3) {
